@@ -2,7 +2,7 @@
     "name": "vscode-spfx-localization",
     "displayName": "SPFx Localization",
     "description": "SharePoint Framework extension to manage localization in projects.",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "icon": "assets/spfx-localization.png",
     "publisher": "eliostruyf",
     "engines": {

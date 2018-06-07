@@ -22,6 +22,9 @@ export class LocaleKey {
       return;
     }
 
+    // Check if the text start and ends width quotes
+    text = this.stripQuotes(text);
+
     const localeKey = await vscode.window.showInputBox({
       ignoreFocusOut: true,
       placeHolder: "Specify the key to create",
@@ -30,6 +33,14 @@ export class LocaleKey {
     if (!localeKey) {
       this.error(`You didn't specify a locale key to create.`);
       return;
+    }
+
+    let useBrackets = await vscode.window.showQuickPick(["no", "yes"], {
+      placeHolder: "Do you want to surround the localized key with curly brackets `{}`?",
+      canPickMany: false
+    });
+    if (!useBrackets) {
+      useBrackets = "no";
     }
 
     // Fetch the project config
@@ -67,8 +78,6 @@ export class LocaleKey {
           resourcePath = resourcePath.replace("lib/", "src/");
         }
 
-        // const absPath = `${vscode.workspace.rootPath}/${resourcePath}`;
-
         // Get all files from the localization folder
         const jsFiles = await vscode.workspace.findFiles(`${resourcePath}/*`);
 
@@ -79,7 +88,7 @@ export class LocaleKey {
 
         // Update the current selected text to the used resouce key
         await editor.edit(builder => {
-          builder.replace(selection, `strings.${localeKey}`);
+          builder.replace(selection, useBrackets === "yes" ? `{strings.${localeKey}}` : `strings.${localeKey}`);
         });
       }
       
@@ -201,6 +210,12 @@ export class LocaleKey {
     const edit = new vscode.WorkspaceEdit();
     let applyEdit = false;
 
+    // Check if the key is already in place
+    if (fileContents.includes(localeKey)) {
+      this.warning(`The key (${localeKey}) was already defined in the following file: ${fileData.fileName}.`);
+      return;
+    }
+
     // Check if "d.ts" file
     if (fileData.fileName.endsWith(".d.ts")) {
       // Check if line starts with "declare interface" and ends with "{"
@@ -212,7 +227,7 @@ export class LocaleKey {
       if (idx !== -1) {
         applyEdit = true;
         const getLinePos = fileLines[idx + 1].search(/\S|$/);
-        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: string;\r\n`);
+        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: string;\r\n${' '.repeat(getLinePos)}`);
       }
     } 
 
@@ -227,7 +242,7 @@ export class LocaleKey {
       if (idx !== -1) {
         applyEdit = true;
         const getLinePos = fileLines[idx + 1].search(/\S|$/);
-        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: "${localeValue}",\r\n`);
+        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: "${localeValue}",\r\n${' '.repeat(getLinePos)}`);
       }
     }
 
@@ -245,6 +260,21 @@ export class LocaleKey {
     }
 
     return;
+  }
+
+  /**
+   * Strip quotes at the beginning and end of the string
+   * 
+   * @param value 
+   */
+  private static stripQuotes(value: string): string {
+    if ((value.startsWith(`'`) && value.endsWith(`'`)) || 
+        (value.startsWith(`"`) && value.endsWith(`"`)) || 
+        (value.startsWith("`") && value.endsWith("`"))) {
+      return value.substring(1, value.length - 1);
+    }
+
+    return value;
   }
 
   /**
