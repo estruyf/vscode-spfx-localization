@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import { Config } from './Config';
 
 const EXTENSION_NAME = "SPFx Localization";
@@ -62,17 +61,20 @@ export class LocaleKey {
         }
 
         // Create the key in the localized resource file
-        const resourcePath = defaultResx.value.substring(0, defaultResx.value.lastIndexOf('/'));
-        const absPath = `${vscode.workspace.rootPath}/${resourcePath}`;
-        const files = fs.readdirSync(absPath);
-        if (!files) {
-          this.error(`Localized resource location could not be retrieved.`);
-          return;
+        let resourcePath = defaultResx.value.substring(0, defaultResx.value.lastIndexOf('/'));
+        // Check if the path starts with 'lib/', if this is the case, it needs to be changed to 'src/'
+        if (resourcePath.startsWith("lib/")) {
+          resourcePath = resourcePath.replace("lib/", "src/");
         }
 
+        // const absPath = `${vscode.workspace.rootPath}/${resourcePath}`;
+
+        // Get all files from the localization folder
+        const jsFiles = await vscode.workspace.findFiles(`${resourcePath}/*`);
+
         // Loop over all the files
-        for (const fileName of files) {
-          await this.addKeyToFile(absPath, fileName, localeKey, text);
+        for (const filePath of jsFiles) {
+          await this.addKeyToFile(filePath, localeKey, text);
         }
 
         // Update the current selected text to the used resouce key
@@ -95,6 +97,14 @@ export class LocaleKey {
     if (!editor) {
       return; // No open text editor
     }
+
+    // Get the current text of the document
+    const crntFile = editor.document.getText();
+    if (crntFile && crntFile.includes("import * as strings")) {
+      this.warning(`Current file already contains a localized resources strings import.`);
+      return;
+    }
+
     // Fetch the project config
     const configInfo: Config | null = await this.getConfig();
     if (configInfo && configInfo.localizedResources) {
@@ -178,14 +188,12 @@ export class LocaleKey {
   /**
    * Adds the locale key to the found file
    * 
-   * @param absPath 
    * @param fileName 
    * @param localeKey 
    * @param localeValue 
    */
-  private static async addKeyToFile(absPath: string, fileName: string, localeKey: string, localeValue: string): Promise<void> {
-    const filePath = `${absPath}/${fileName}`;
-    const fileData = await vscode.workspace.openTextDocument(filePath);
+  private static async addKeyToFile(fileName: vscode.Uri, localeKey: string, localeValue: string): Promise<void> {
+    const fileData = await vscode.workspace.openTextDocument(fileName);
     const fileContents = fileData.getText();
     const fileLines = fileContents.split("\n");
 
@@ -194,7 +202,7 @@ export class LocaleKey {
     let applyEdit = false;
 
     // Check if "d.ts" file
-    if (fileName.endsWith(".d.ts")) {
+    if (fileData.fileName.endsWith(".d.ts")) {
       // Check if line starts with "declare interface" and ends with "{"
       const idx = fileLines.findIndex(line => {
         const matches = line.trim().match(/(^declare interface|{$)/gi);
@@ -204,12 +212,12 @@ export class LocaleKey {
       if (idx !== -1) {
         applyEdit = true;
         const getLinePos = fileLines[idx + 1].search(/\S|$/);
-        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: string;\n`);
+        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: string;\r\n`);
       }
     } 
 
     // Check if "js" file
-    if (fileName.endsWith(".js")) {
+    if (fileData.fileName.endsWith(".js")) {
       // Check if line starts with "return" and ends with "{"
       const idx = fileLines.findIndex(line => {
         const matches = line.trim().match(/(^return|{$)/gi);
@@ -219,7 +227,7 @@ export class LocaleKey {
       if (idx !== -1) {
         applyEdit = true;
         const getLinePos = fileLines[idx + 1].search(/\S|$/);
-        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: "${localeValue}",\n`);
+        edit.insert(fileData.uri, new vscode.Position((idx + 1), getLinePos), `${localeKey}: "${localeValue}",\r\n`);
       }
     }
 
@@ -246,5 +254,14 @@ export class LocaleKey {
    */
   private static error(msg: string): void {
     vscode.window.showErrorMessage(`${EXTENSION_NAME}: ${msg}`);
+  }
+
+  /**
+   * Show an error message
+   * 
+   * @param msg 
+   */
+  private static warning(msg: string): void {
+    vscode.window.showWarningMessage(`${EXTENSION_NAME}: ${msg}`);
   }
 }
