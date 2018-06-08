@@ -12,12 +12,17 @@ export function activate(context: vscode.ExtensionContext) {
     LocaleKey.create();
   });
 
+  const inserting = vscode.commands.registerCommand('extension.spfxLocalizationInsertKey', () => {
+    LocaleKey.insert();
+  });
+
   // Register the localization importer
   const importing = vscode.commands.registerCommand('extension.spfxLocalizationImport', () => {
     LocaleKey.import();
   });
   
   context.subscriptions.push(creating);
+  context.subscriptions.push(inserting);
   context.subscriptions.push(importing);
 }
 

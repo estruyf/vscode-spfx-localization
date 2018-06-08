@@ -2,7 +2,7 @@
     "name": "vscode-spfx-localization",
     "displayName": "SPFx Localization",
     "description": "SharePoint Framework extension to manage localization in projects.",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "icon": "assets/spfx-localization.png",
     "publisher": "eliostruyf",
     "engines": {
@@ -25,18 +25,23 @@
     },
     "activationEvents": [
         "onCommand:extension.spfxLocalizationCreateKey",
+        "onCommand:extension.spfxLocalizationInsertKey",
         "onCommand:extension.spfxLocalizationImport"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
+                "command": "extension.spfxLocalizationInsertKey",
+                "title": "SPFx create and insert localization key for selected text"
+            },
+            {
                 "command": "extension.spfxLocalizationCreateKey",
-                "title": "SPFx create localization key"
+                "title": "SPFx create new localization key"
             },
             {
                 "command": "extension.spfxLocalizationImport",
-                "title": "SPFx import localization strings module"
+                "title": "SPFx import localization strings dependency"
             }
         ]
     },
