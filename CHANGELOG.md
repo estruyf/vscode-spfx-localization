@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.0.5] - 2018-06-14
+
+**Enhancements**
+
+- Removed information messages when localization keys were added
+
 ## [0.0.4] - 2018-06-08
 
 **Enhancements**

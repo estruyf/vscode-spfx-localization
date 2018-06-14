@@ -189,7 +189,7 @@ export class LocaleKey {
       }
 
       // Display a message box to the user
-      vscode.window.showInformationMessage(`${EXTENSION_NAME}: "${localeKey}" key has been added.`);
+      // vscode.window.showInformationMessage(`${EXTENSION_NAME}: "${localeKey}" key has been added.`);
     }
   }
 
