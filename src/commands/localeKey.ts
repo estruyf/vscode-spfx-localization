@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { Config } from './Config';
 import { ActionType } from './ActionType';
+import ProjectFileHelper from '../helpers/ProjectFileHelper';
+import ResourceHelper from '../helpers/ResourceHelper';
+import TextHelper from '../helpers/TextHelper';
 
 const EXTENSION_NAME = "SPFx Localization";
 
@@ -25,7 +28,7 @@ export class LocaleKey {
     }
 
     // Check if the text start and ends width quotes
-    text = this.stripQuotes(text);
+    text = TextHelper.stripQuotes(text);
 
     // Create the localization information
     this.createLocalization(editor, text, ActionType.insert);
@@ -63,9 +66,9 @@ export class LocaleKey {
     }
 
     // Fetch the project config
-    const configInfo: Config | null = await this.getConfig();
+    const configInfo: Config | null = await ProjectFileHelper.getConfig();
     if (configInfo && configInfo.localizedResources) {
-      const resx = this.excludeResourcePaths(configInfo);
+      const resx = ResourceHelper.excludeResourcePaths(configInfo);
       // Check if resources were retrieved
       if (resx && resx.length > 0) {
         // Take the default one to import
@@ -130,7 +133,7 @@ export class LocaleKey {
     }
 
     // Fetch the project config
-    const configInfo: Config | null = await this.getConfig();    
+    const configInfo: Config | null = await ProjectFileHelper.getConfig();    
     if (configInfo) {
       if (!configInfo.localizedResources) {
         this.error(`No localizedResources were defined in the config.`);
@@ -138,7 +141,7 @@ export class LocaleKey {
       }
 
       // Convert to array and filter out the none project related resource files
-      const resx = this.excludeResourcePaths(configInfo);
+      const resx = ResourceHelper.excludeResourcePaths(configInfo);
       if (resx && resx.length > 0) {
         // Fetch the default locale resource
         let defaultResx = resx[0];
@@ -191,62 +194,6 @@ export class LocaleKey {
       // Display a message box to the user
       // vscode.window.showInformationMessage(`${EXTENSION_NAME}: "${localeKey}" key has been added.`);
     }
-  }
-
-  /**
-   * Fetch the project config file
-   */
-  private static async getConfig(): Promise<Config | null> {
-    // Start the search for the loc folder in the project
-    const configFileUrls = await vscode.workspace.findFiles('**/config/config.json', "**/node_modules/**", 1);
-    if (!configFileUrls || configFileUrls.length === 0) {
-      this.error(`Solution config file could not be retrieved.`);
-      return null;
-    }
-
-    // Take the first config file
-    const configFileUrl = configFileUrls[0];
-    if (configFileUrl) {
-      // Fetch the the config file contents
-      const configFile = await vscode.workspace.openTextDocument(configFileUrl);
-      if (!configFile) {
-        this.error(`Could not read the config file.`);
-        return null;
-      }
-
-      // Get the file contents
-      const contents = configFile.getText();
-      if (!contents) {
-        this.error(`Could not retrieve the file contents.`);
-        return null;
-      }
-
-      // Fetch the config information and check if localizedResources were defined
-      const configInfo: Config = JSON.parse(contents);
-      return configInfo;
-    }
-
-    return null;
-  }
-
-  /**
-   * Exclude all the none related project resource paths
-   * 
-   * @param configInfo 
-   */
-  private static excludeResourcePaths(configInfo: Config) {
-    const lrKeys = Object.keys(configInfo.localizedResources);
-    const resx = [];
-    for (const key of lrKeys) {
-      const value = configInfo.localizedResources[key];
-      if (!value.includes("node_modules")) {
-        resx.push({
-          key,
-          value
-        });
-      }
-    }
-    return resx;
   }
 
   /**
@@ -321,21 +268,6 @@ export class LocaleKey {
     }
 
     return;
-  }
-
-  /**
-   * Strip quotes at the beginning and end of the string
-   * 
-   * @param value 
-   */
-  private static stripQuotes(value: string): string {
-    if ((value.startsWith(`'`) && value.endsWith(`'`)) || 
-        (value.startsWith(`"`) && value.endsWith(`"`)) || 
-        (value.startsWith("`") && value.endsWith("`"))) {
-      return value.substring(1, value.length - 1);
-    }
-
-    return value;
   }
 
   /**

@@ -1,6 +1,6 @@
 # SharePoint Framework Localization Resources Extension
 
-This extension for Visual Studio Code adds allows you to add new resource keys to the localization files in your SharePoint Framework solutions. It can also be used to import an available localization resource to the current file.
+This extension for Visual Studio Code makes it easier to work with resources in SharePoint Framework projects. It allows you to add new resource keys to the localization files, import the localization file dependency and quickly check a localization value by hovering over the name.
 
 **Importing**
 
@@ -19,6 +19,12 @@ When multiple localization resources are available (retrieved from the `config.j
 Here is a sample of my `config.json` file:
 
 ![config.json](./assets/config-file.png)
+
+**Quickly check the resource value**
+
+By hovering over the resource value used in your TypeScript or React code, a hover panel appears to show you the known values:
+
+![Hover panel](./assets/resource-hover.gif)
 
 ## Usage
 

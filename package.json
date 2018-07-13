@@ -2,7 +2,7 @@
     "name": "vscode-spfx-localization",
     "displayName": "SPFx Localization",
     "description": "SharePoint Framework extension to manage localization in projects.",
-    "version": "0.0.5",
+    "version": "1.0.0",
     "icon": "assets/spfx-localization.png",
     "publisher": "eliostruyf",
     "engines": {
@@ -26,7 +26,8 @@
     "activationEvents": [
         "onCommand:extension.spfxLocalizationCreateKey",
         "onCommand:extension.spfxLocalizationInsertKey",
-        "onCommand:extension.spfxLocalizationImport"
+        "onCommand:extension.spfxLocalizationImport",
+        "workspaceContains:**/config/package-solution.json"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -53,10 +54,11 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
-        "tslint": "^5.8.0",
+        "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
-    }
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6"
+    },
+    "dependencies": {}
 }

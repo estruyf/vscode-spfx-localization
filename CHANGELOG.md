@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.0.0] - 2018-07-13
+
+**Enhancements**
+
+- Added hover provider to show the resource values of the hovered string
+
 ## [0.0.5] - 2018-06-14
 
 **Enhancements**
