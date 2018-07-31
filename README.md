@@ -46,6 +46,16 @@ By hovering over the resource value used in your TypeScript or React code, a hov
 - Provide the name of the key to create
 - Select the localized resource to import (if multiple are available, otherwise it will take the first one)
 
+**Editor context menu**
+
+All the actions are also available from the editor its context menu.
+
+![Editor context menu actions](./assets/editor-context-menu-actions.png)
+
+When you select text, the `add and insert` action becomes available:
+
+![Editor context menu add and insert](./assets/editor-context-menu-add.png)
+
 ## Feedback and snippet ideas
 
 Feedback and ideas are always welcome. Please submit them via creating an issue in the project repository: [issue list](https://github.com/estruyf/vscode-spfx-localization/issues).

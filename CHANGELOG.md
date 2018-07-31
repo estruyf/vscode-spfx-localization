@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.0] - 2018-07-31
+
+**Enhancements**
+
+- Added the localization actions to the editor context menu
+
 ## [1.0.0] - 2018-07-13
 
 **Enhancements**
