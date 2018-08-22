@@ -1,5 +1,6 @@
-import { Config } from './../commands/Config';
+import { Config, LocalizedResourceValue } from '../models/Config';
 import TextHelper from './TextHelper';
+import { LocaleKeyValue } from '../models/LocaleKeyValue';
 
 export default class ResourceHelper {
 
@@ -8,7 +9,7 @@ export default class ResourceHelper {
    * 
    * @param configInfo 
    */
-  public static excludeResourcePaths(configInfo: Config) {
+  public static excludeResourcePaths(configInfo: Config): LocalizedResourceValue[] {
     const lrKeys = Object.keys(configInfo.localizedResources);
     const resx = [];
     for (const key of lrKeys) {
@@ -47,5 +48,49 @@ export default class ResourceHelper {
       }
     }
     return null;
+  }
+
+  /**
+   * Retrieve the key value pairs from the locale file contents
+   * 
+   * @param fileContents 
+   */
+  public static getKeyValuePairs(fileContents: string): LocaleKeyValue[] {
+    let localeKeyValue: LocaleKeyValue[] = [];
+    // Check if file contents were passed
+    if (fileContents) {
+      // Find the position of the return statement
+      const fileLines = fileContents.split("\n");
+      const returnIdx = fileLines.findIndex(line => {
+        const matches = line.trim().match(/(^return|{$)/gi);
+        return matches !== null && matches.length >= 2;
+      });
+
+      // Check if the index has been found
+      if (returnIdx !== -1) {
+        // Loop over all the lines
+        for (const line of fileLines) {
+          const lineVal = line.trim();
+          // Get the colon location
+          const colonIdx = lineVal.indexOf(":");
+          if (colonIdx !== -1) {
+            const keyName = lineVal.substring(0, colonIdx);
+            let keyValue = lineVal.substring((colonIdx + 1));
+            keyValue = keyValue.trim();
+            keyValue = TextHelper.stripQuotes(keyValue);
+
+            // Add the key and value to the array
+            if (keyName && keyValue) {
+              localeKeyValue.push({
+                key: TextHelper.stripQuotes(keyName),
+                value: keyValue
+              });
+            }
+          } 
+        }
+      }
+    }
+
+    return localeKeyValue;
   }
 }

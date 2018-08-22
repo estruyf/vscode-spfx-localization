@@ -1,13 +1,16 @@
+import { CONFIG_AUTO_EXPORT } from './../helpers/ExtensionSettings';
 import * as vscode from 'vscode';
-import { Config } from './Config';
+import { Config, LocalizedResourceValue } from '../models/Config';
 import { ActionType } from './ActionType';
 import ProjectFileHelper from '../helpers/ProjectFileHelper';
 import ResourceHelper from '../helpers/ResourceHelper';
 import TextHelper from '../helpers/TextHelper';
-
-const EXTENSION_NAME = "SPFx Localization";
+import Logging from './Logging';
+import { CONFIG_KEY } from '../helpers/ExtensionSettings';
+import CsvCommands from './CsvCommands';
 
 export class LocaleKey {
+
   /**
    * Create a new localization key for a SharePoint Framework solution
    */
@@ -15,7 +18,7 @@ export class LocaleKey {
     // The code you place here will be executed every time your command is executed
     let editor = vscode.window.activeTextEditor;
     if (!editor) {
-      this.error(`You aren't editing a file at the moment.`);
+      Logging.error(`You aren't editing a file at the moment.`);
       return; // No open text editor
     }
     
@@ -23,7 +26,7 @@ export class LocaleKey {
     let selection = editor.selection;
     let text = editor.document.getText(selection);
     if (!text) {
-      this.error(`You didn't select a string to replace with the locale key.`);
+      Logging.error(`You didn't select a string to replace with the locale key.`);
       return;
     }
 
@@ -41,7 +44,7 @@ export class LocaleKey {
     // The code you place here will be executed every time your command is executed
     let editor = vscode.window.activeTextEditor;
     if (!editor) {
-      this.error(`You aren't editing a file at the moment.`);
+      Logging.error(`You aren't editing a file at the moment.`);
       return; // No open text editor
     }
 
@@ -61,7 +64,7 @@ export class LocaleKey {
     // Get the current text of the document
     const crntFile = editor.document.getText();
     if (crntFile && crntFile.includes("import * as strings")) {
-      this.warning(`Current file already contains a localized resources strings import.`);
+      Logging.warning(`Current file already contains a localized resources strings import.`);
       return;
     }
 
@@ -83,7 +86,7 @@ export class LocaleKey {
         if (defaultResx) {
           editor.edit(builder => builder.insert(new vscode.Position(0, 0), `import * as strings from '${defaultResx}';\r\n`));
         } else {
-          this.error("You didn't select a localized resource to insert.");
+          Logging.error("You didn't select a localized resource to insert.");
         }
       }
     }
@@ -103,7 +106,7 @@ export class LocaleKey {
       prompt: "Example: InputTitleLabel, TitleFieldLabel, ..."
     });
     if (!localeKey) {
-      this.error(`You didn't specify a locale key to create.`);
+      Logging.error(`You didn't specify a locale key to create.`);
       return;
     }
 
@@ -115,7 +118,7 @@ export class LocaleKey {
         prompt: "Example: Loading profile information..."
       });
       if (!localeValue) {
-        this.error(`You didn't specify the default localization value.`);
+        Logging.error(`You didn't specify the default localization value.`);
         return;
       } else {
         text = localeValue;
@@ -136,15 +139,16 @@ export class LocaleKey {
     const configInfo: Config | null = await ProjectFileHelper.getConfig();    
     if (configInfo) {
       if (!configInfo.localizedResources) {
-        this.error(`No localizedResources were defined in the config.`);
+        Logging.error(`No localizedResources were defined in the config.`);
         return;
       }
 
       // Convert to array and filter out the none project related resource files
       const resx = ResourceHelper.excludeResourcePaths(configInfo);
+      let defaultResx: LocalizedResourceValue | null = null;
       if (resx && resx.length > 0) {
         // Fetch the default locale resource
-        let defaultResx = resx[0];
+        defaultResx = resx[0];
 
         // Check if there were more localized resources defined
         if (resx.length > 1) {
@@ -161,12 +165,7 @@ export class LocaleKey {
         }
 
         // Create the key in the localized resource file
-        let resourcePath = defaultResx.value.substring(0, defaultResx.value.lastIndexOf('/'));
-        // Check if the path starts with 'lib/', if this is the case, it needs to be changed to 'src/'
-        if (resourcePath.startsWith("lib/")) {
-          resourcePath = resourcePath.replace("lib/", "src/");
-        }
-
+        let resourcePath = ProjectFileHelper.getResourcePath(defaultResx);
         // Get all files from the localization folder
         const jsFiles = await vscode.workspace.findFiles(`${resourcePath}/*`);
 
@@ -193,6 +192,13 @@ export class LocaleKey {
 
       // Display a message box to the user
       // vscode.window.showInformationMessage(`${EXTENSION_NAME}: "${localeKey}" key has been added.`);
+
+      // Check if auto CSV export needs to start
+      const autoExport = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_AUTO_EXPORT);
+      if (autoExport && defaultResx) {
+        // Start the export to the CSV file
+        CsvCommands.export(defaultResx);
+      }
     }
   }
 
@@ -214,7 +220,7 @@ export class LocaleKey {
 
     // Check if the key is already in place
     if (fileContents.includes(localeKey)) {
-      this.warning(`The key (${localeKey}) was already defined in the following file: ${fileData.fileName}.`);
+      Logging.warning(`The key (${localeKey}) was already defined in the following file: ${fileData.fileName}.`);
       return;
     }
 
@@ -258,33 +264,15 @@ export class LocaleKey {
       try {
         const result = await vscode.workspace.applyEdit(edit).then(success => success);
         if (!result) {
-          this.error(`Couldn't add the key to the file: ${fileName}.`);
+          Logging.error(`Couldn't add the key to the file: ${fileName}.`);
         } else {
           await fileData.save();
         }
       } catch (e) {
-        this.error(`Something went wrong adding the locale key to the file: ${fileName}.`);
+        Logging.error(`Something went wrong adding the locale key to the file: ${fileName}.`);
       }
     }
 
     return;
-  }
-
-  /**
-   * Show an error message
-   * 
-   * @param msg 
-   */
-  private static error(msg: string): void {
-    vscode.window.showErrorMessage(`${EXTENSION_NAME}: ${msg}`);
-  }
-
-  /**
-   * Show an error message
-   * 
-   * @param msg 
-   */
-  private static warning(msg: string): void {
-    vscode.window.showWarningMessage(`${EXTENSION_NAME}: ${msg}`);
   }
 }

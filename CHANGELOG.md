@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.2.0] - 2018-08-22
+
+**Enhancements**
+
+- Added the ability to export localization labels to a CSV file
+- Added the ability to import localization labels from a CSV file
+- Context actions should only be shown in SPFx projects
+
 ## [1.1.0] - 2018-07-31
 
 **Enhancements**

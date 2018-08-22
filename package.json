@@ -1,81 +1,119 @@
 {
-    "name": "vscode-spfx-localization",
-    "displayName": "SPFx Localization",
-    "description": "SharePoint Framework extension to manage localization in projects.",
-    "version": "1.1.0",
-    "icon": "assets/spfx-localization.png",
-    "publisher": "eliostruyf",
-    "engines": {
-        "vscode": "^1.23.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "keywords": [
-        "SharePoint",
-        "SPFx",
-        "TypeScript",
-        "Localization",
-        "Resources"
-    ],
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/estruyf/vscode-spfx-localization"
-    },
-    "activationEvents": [
-        "onCommand:extension.spfxLocalizationCreateKey",
-        "onCommand:extension.spfxLocalizationInsertKey",
-        "onCommand:extension.spfxLocalizationImport",
-        "workspaceContains:**/config/package-solution.json"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "commands": [
-            {
-                "command": "extension.spfxLocalizationInsertKey",
-                "title": "SPFx create and insert localization key for selected text"
-            },
-            {
-                "command": "extension.spfxLocalizationCreateKey",
-                "title": "SPFx create new localization key"
-            },
-            {
-                "command": "extension.spfxLocalizationImport",
-                "title": "SPFx import localization strings dependency"
-            }
-        ],
-        "menus": {
-          "editor/context": [
-            {
-              "when": "editorHasSelection",
-              "command": "extension.spfxLocalizationInsertKey",
-              "group": "SPFxLocalizationActions"
-            },
-            {
-              "command": "extension.spfxLocalizationCreateKey",
-              "group": "SPFxLocalizationActions"
-            },
-            {
-              "command": "extension.spfxLocalizationImport",
-              "group": "SPFxLocalizationActions"
-            }
-          ]
+  "name": "vscode-spfx-localization",
+  "displayName": "SPFx Localization",
+  "description": "SharePoint Framework extension to manage localization in projects.",
+  "version": "1.2.0",
+  "icon": "assets/spfx-localization.png",
+  "publisher": "eliostruyf",
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "SharePoint",
+    "SPFx",
+    "TypeScript",
+    "Localization",
+    "Resources"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estruyf/vscode-spfx-localization"
+  },
+  "activationEvents": [
+    "onCommand:extension.spfxLocalizationCreateKey",
+    "onCommand:extension.spfxLocalizationInsertKey",
+    "onCommand:extension.spfxLocalizationImport",
+    "onCommand:extension.spfxCsvImport",
+    "onCommand:extension.spfxCsvExport",
+    "workspaceContains:**/config/package-solution.json"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "SPFx Localization Configuration",
+      "properties": {
+        "spfxLocalization.csvFileLocation": {
+          "type": "string",
+          "default": "./spfx-locale.csv",
+          "description": "The location of the SPFx locale labels CSV file."
+        },
+        "spfxLocalization.csvDelimiter": {
+          "type": "string",
+          "default": ";",
+          "description": "The delimiter to use in the CSV file."
+        },
+        "spfxLocalization.autoCsvExport": {
+          "type": "boolean",
+          "default": false,
+          "description": "Specify if you want to automatically export to the CSV file when creating new labels."
+        }
       }
     },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.43",
-        "tslint": "^5.8.0",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6"
-    },
-    "dependencies": {}
+    "commands": [
+      {
+        "command": "extension.spfxLocalizationInsertKey",
+        "title": "SPFx create and insert localization key for selected text"
+      },
+      {
+        "command": "extension.spfxLocalizationCreateKey",
+        "title": "SPFx create new localization key"
+      },
+      {
+        "command": "extension.spfxLocalizationImport",
+        "title": "SPFx import localization strings dependency"
+      },
+      {
+        "command": "extension.spfxCsvImport",
+        "title": "SPFx import locale labels from CSV"
+      },
+      {
+        "command": "extension.spfxCsvExport",
+        "title": "SPFx export locale labels to CSV"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "spfxProjectCheck && editorHasSelection",
+          "command": "extension.spfxLocalizationInsertKey",
+          "group": "SPFxLocalizationActions"
+        },
+        {
+          "when": "spfxProjectCheck",
+          "command": "extension.spfxLocalizationCreateKey",
+          "group": "SPFxLocalizationActions"
+        },
+        {
+          "when": "spfxProjectCheck",
+          "command": "extension.spfxLocalizationImport",
+          "group": "SPFxLocalizationActions"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/csv-parse": "1.1.11",
+    "@types/csv-stringify": "1.4.2",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6"
+  },
+  "dependencies": {
+    "csv-parse": "2.5.0",
+    "csv-stringify": "3.1.1"
+  }
 }
