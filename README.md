@@ -17,7 +17,7 @@ DescriptionLabel;Description;x
 
 If you have multiple resource files and want to use the same key/labels, you can use the value `x` to specify for which resources the key is intended.
 
-![Export to CSV](./assets/localization-csv-export.gif);
+![Export to CSV](./assets/localization-csv-export.gif)
 
 ### Import from a CSV file
 
