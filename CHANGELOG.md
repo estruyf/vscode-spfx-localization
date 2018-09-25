@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.2.1] - 2018-09-25
+
+**Fixes**
+
+- Performance improvements by temporarily disabling the hover provider
+
 ## [1.2.0] - 2018-08-22
 
 **Enhancements**

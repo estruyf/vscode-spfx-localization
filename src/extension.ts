@@ -3,7 +3,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { LocaleKey } from './commands/LocaleKey';
-import LanguageHover from './hover/LanguageHover';
+// import LanguageHover from './hover/LanguageHover';
 import CsvCommands from './commands/CsvCommands';
 
 // this method is called when your extension is activated
@@ -34,8 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register hover providers
-  vscode.languages.registerHoverProvider({ scheme: 'file', language: 'typescript' }, { provideHover: LanguageHover.onHover });
-  vscode.languages.registerHoverProvider({ scheme: 'file', language: 'typescriptreact' }, { provideHover: LanguageHover.onHover });
+  // vscode.languages.registerHoverProvider({ scheme: 'file', language: 'typescript' }, { provideHover: LanguageHover.onHover });
+  // vscode.languages.registerHoverProvider({ scheme: 'file', language: 'typescriptreact' }, { provideHover: LanguageHover.onHover });
   
   context.subscriptions.push(creating);
   context.subscriptions.push(inserting);
