@@ -252,7 +252,7 @@ export class LocaleKey {
       if (fileData.fileName.endsWith(".d.ts")) {
         newLineData = `${localeKey}: string;\r\n${' '.repeat(getLinePos)}`;
       } else if (fileData.fileName.endsWith(".js")) {
-        newLineData = `${localeKey}: "${localeValue}",\r\n${' '.repeat(getLinePos)}`;
+        newLineData = `${localeKey}: "${localeValue.replace(/"/g, `\\"`)}",\r\n${' '.repeat(getLinePos)}`;
       }
       // Check if there is data to insert
       if (newLineData) {

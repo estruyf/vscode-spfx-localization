@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.2.2] - 2019-02-06
+
+**Fixes**
+
+- Fixed an issue where the localization label with double quotes usage was incorrectly created
+
 ## [1.2.1] - 2018-09-25
 
 **Fixes**
