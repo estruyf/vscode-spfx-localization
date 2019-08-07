@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.3.0] - 2019-08-07
+
+**Enhancements**
+
+- Added support for TypeScript locale files and the ability to specify the locale file extension preference
+
+**Fixes**
+
+- Translations labels not included into the CSV [#1](https://github.com/estruyf/vscode-spfx-localization/issues/1)
+
 ## [1.2.2] - 2019-02-06
 
 **Fixes**

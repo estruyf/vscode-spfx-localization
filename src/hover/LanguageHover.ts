@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import ProjectFileHelper from '../helpers/ProjectFileHelper';
 import ResourceHelper from '../helpers/ResourceHelper';
 
@@ -33,7 +34,10 @@ export default class LanguageHover {
               if (jsFile) {
                 const fileData = await vscode.workspace.openTextDocument(jsFile);
                 const fileContents = fileData.getText();
-                const localeName = fileData.fileName.substring((fileData.fileName.lastIndexOf("/") + 1), fileData.fileName.lastIndexOf(".js"));
+
+                const fileName = path.basename(fileData.fileName);
+                const localeName = fileName.split('.').slice(0, -1).join('.');
+                
                 // Process the file with the hovered word
                 const value = ResourceHelper.getResourceValue(fileContents, word);
                 if (value) {

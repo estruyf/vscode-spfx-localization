@@ -64,6 +64,7 @@ The extension has the following settings which you can configure to your own pre
 | `spfxLocalization.csvFileLocation` | The location of the SPFx locale labels CSV file. | string | `./spfx-locale.csv` |
 | `spfxLocalization.csvDelimiter` | The delimiter to use in the CSV file. | string | `;` |
 | `spfxLocalization.autoCsvExport` | Specify if you want to automatically export to the CSV file when creating new labels. | boolean | `false` |
+| `spfxLocalization.localeFileExtension` | Specify the extension type of the localization files. Default is JavaScript, but you can be changed to TypeScript. | enum | "js" \| "ts" |
 
 ## How to use this extension
 

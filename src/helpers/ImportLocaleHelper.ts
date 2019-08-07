@@ -5,6 +5,7 @@ import Logging from "../commands/Logging";
 import { LocalizedResourceValue } from "../models/Config";
 import { LocaleCsvData } from "../models/LocaleCsvInfo";
 import ProjectFileHelper from "./ProjectFileHelper";
+import { CONFIG_KEY, CONFIG_FILE_EXTENSION } from "./ExtensionSettings";
 
 export default class ImportLocaleHelper {
 
@@ -18,6 +19,11 @@ export default class ImportLocaleHelper {
     if (!resx || !localeData) {
       return;
     }
+
+    let fileExtension: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_FILE_EXTENSION);
+    if (!fileExtension) {
+      fileExtension = "js";
+    }
   
     // Create the key in the localized resource file
     let resourcePath = ProjectFileHelper.getResourcePath(resx);
@@ -29,13 +35,18 @@ export default class ImportLocaleHelper {
         const resourceKeys = localeData[key].filter(l => l.resx === resx.key);
         if (resourceKeys && resourceKeys.length > 0) {
           // Create the file content
-          const fileContents = `define([], function() {
-  return {
+          let fileContents = fileExtension === "ts" ? `declare var define: any;
+       
+define([], () => {
+` : `define([], function() {
+`;
+
+          fileContents += `  return {
     ${resourceKeys.map(k => `${k.key}: "${k.label}"`).join(`,\n    `)}
-  }
+  };
 });`;
           // Start creating the file
-          const fileLocation = path.join(vscode.workspace.rootPath || __dirname, resourcePath, `${key}.js`);
+          const fileLocation = path.join(vscode.workspace.rootPath || __dirname, resourcePath, `${key}.${fileExtension}`);
           fs.writeFileSync(fileLocation, fileContents, { encoding: "utf8" });
           Logging.info(`Localization labels have been imported.`);
         }

@@ -6,7 +6,7 @@ import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL } from '../helpers/ExtensionSettings';
+import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL, CONFIG_FILE_EXTENSION } from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
 
@@ -54,11 +54,21 @@ export default class CsvCommands {
       if (resources && resources.length > 0) {
         for (const resource of resources) {
           if (resource) {
+            let fileExtension: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_FILE_EXTENSION);
+            if (!fileExtension) {
+              fileExtension = "js";
+            }
+
             // Get all the localized resource files
             const resourcePath = ProjectFileHelper.getResourcePath(resource);
-            const jsFiles = await vscode.workspace.findFiles(`${resourcePath}/*.js`);
-            if (!jsFiles || jsFiles.length === 0) {
+            let localeFiles = await vscode.workspace.findFiles(`${resourcePath}/*.${fileExtension}`);
+            if (!localeFiles || localeFiles.length === 0) {
               Logging.error(`No locale files were found for the selected resource: ${resource.key}.`);
+            }
+
+            // Exclude the mystrings file
+            if (fileExtension === "ts") {
+              localeFiles = localeFiles.filter(f => !f.path.includes("mystrings.d.ts"));
             }
 
             let delimiter: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_DELIMITER);
@@ -77,11 +87,11 @@ export default class CsvCommands {
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
             if (!csvData) {
-              csvData = CsvHelper.createCsvFile(jsFiles, resource, csvFileLocation, delimiter);
+              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension);
             }
 
             // Start the export
-            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, jsFiles, csvFileLocation, delimiter as string, resource.key));
+            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key));
           }
         }
       }

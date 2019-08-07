@@ -50,11 +50,12 @@ export default class CsvHelper {
    * @param resource 
    * @param csvFileLocation 
    * @param delimiter 
+   * @param fileExtension 
    */
-  public static createCsvFile(jsFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, delimiter: string): string {
-    const locales = jsFiles.map(f => {
+  public static createCsvFile(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, delimiter: string, fileExtension: string): string {
+    const locales = localeFiles.map(f => {
       const filePath = f.path.substring(f.path.lastIndexOf("/") + 1);
-      return `${LOCALE_HEADER} ${filePath.replace(".js", "")}`;
+      return `${LOCALE_HEADER} ${filePath.replace(`.${fileExtension}`, "")}`;
     });
     // Create the headers for the CSV file
     const headers = ["key", ...locales, resource.key];

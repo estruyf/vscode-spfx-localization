@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path";
 import ResourceHelper from "./ResourceHelper";
 import CsvHelper from "./CsvHelper";
 
@@ -9,20 +10,21 @@ export default class ExportLocaleHelper {
    * 
    * @param err 
    * @param csvData 
-   * @param jsFiles 
+   * @param localeFiles 
    * @param csvLocation 
    * @param delimiter
-   * @param resourceName 
+   * @param resourceName
    */
-  public static async startExport(err: any | Error, csvData: string[][], jsFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string): Promise<void> {
+  public static async startExport(err: any | Error, csvData: string[][], localeFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string): Promise<void> {
     // Start looping over the JS Locale files
-    for (const jsFile of jsFiles) {
-      const jsFileData = await vscode.workspace.openTextDocument(jsFile);
-      if (jsFileData) {
-        const keyValuePairs = ResourceHelper.getKeyValuePairs(jsFileData.getText());
+    for (const localeFile of localeFiles) {
+      const localeData = await vscode.workspace.openTextDocument(localeFile);
+      if (localeData) {
+        const keyValuePairs = ResourceHelper.getKeyValuePairs(localeData.getText());
         // Check if key value pairs have been retrieved
         if (keyValuePairs && keyValuePairs.length > 0) {
-          const localeName = jsFileData.fileName.substring((jsFileData.fileName.lastIndexOf("/") + 1), jsFileData.fileName.lastIndexOf(".js"));
+          const fileName = path.basename(localeData.fileName);
+          const localeName = fileName.split('.').slice(0, -1).join('.');
           // Start adding/updating the key and values to the CSV data
           csvData = CsvHelper.updateData(csvData, keyValuePairs, localeName, resourceName);
         }

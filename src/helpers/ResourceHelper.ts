@@ -69,24 +69,28 @@ export default class ResourceHelper {
       // Check if the index has been found
       if (returnIdx !== -1) {
         // Loop over all the lines
+        let x = 0;
         for (const line of fileLines) {
-          const lineVal = line.trim();
-          // Get the colon location
-          const colonIdx = lineVal.indexOf(":");
-          if (colonIdx !== -1) {
-            const keyName = lineVal.substring(0, colonIdx);
-            let keyValue = lineVal.substring((colonIdx + 1));
-            keyValue = keyValue.trim();
-            keyValue = TextHelper.stripQuotes(keyValue);
+          if (x > returnIdx) {
+            const lineVal = line.trim();
+            // Get the colon location
+            const colonIdx = lineVal.indexOf(":");
+            if (colonIdx !== -1) {
+              const keyName = lineVal.substring(0, colonIdx);
+              let keyValue = lineVal.substring((colonIdx + 1));
+              keyValue = keyValue.trim();
+              keyValue = TextHelper.stripQuotes(keyValue);
 
-            // Add the key and value to the array
-            if (keyName && keyValue) {
-              localeKeyValue.push({
-                key: TextHelper.stripQuotes(keyName),
-                value: keyValue
-              });
+              // Add the key and value to the array
+              if (keyName && keyValue) {
+                localeKeyValue.push({
+                  key: TextHelper.stripQuotes(keyName),
+                  value: keyValue
+                });
+              }
             }
           } 
+          x++;
         }
       }
     }

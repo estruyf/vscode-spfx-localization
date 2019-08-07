@@ -167,10 +167,10 @@ export class LocaleKey {
         // Create the key in the localized resource file
         let resourcePath = ProjectFileHelper.getResourcePath(defaultResx);
         // Get all files from the localization folder
-        const jsFiles = await vscode.workspace.findFiles(`${resourcePath}/*`);
+        const localeFiles = await vscode.workspace.findFiles(`${resourcePath}/*`);
 
         // Loop over all the files
-        for (const filePath of jsFiles) {
+        for (const filePath of localeFiles) {
           await this.addKeyToFile(filePath, localeKey, text);
         }
 
@@ -235,7 +235,7 @@ export class LocaleKey {
     } 
 
     // Check if "js" file
-    if (fileData.fileName.endsWith(".js")) {
+    if (fileData.fileName.endsWith(".js") || (fileData.fileName.endsWith(".ts") && !fileData.fileName.endsWith(".d.ts"))) {
       // Check if line starts with "return" and ends with "{"
       idx = fileLines.findIndex(line => {
         const matches = line.trim().match(/(^return|{$)/gi);
@@ -251,7 +251,7 @@ export class LocaleKey {
       let newLineData: string | null = null;
       if (fileData.fileName.endsWith(".d.ts")) {
         newLineData = `${localeKey}: string;\r\n${' '.repeat(getLinePos)}`;
-      } else if (fileData.fileName.endsWith(".js")) {
+      } else if (fileData.fileName.endsWith(".js") || (fileData.fileName.endsWith(".ts") && !fileData.fileName.endsWith(".d.ts"))) {
         newLineData = `${localeKey}: "${localeValue.replace(/"/g, `\\"`)}",\r\n${' '.repeat(getLinePos)}`;
       }
       // Check if there is data to insert
