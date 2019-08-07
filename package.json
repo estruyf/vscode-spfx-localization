@@ -55,7 +55,10 @@
         "spfxLocalization.localeFileExtension": {
           "type": "string",
           "default": "js",
-          "enum": ["js", "ts"],
+          "enum": [
+            "js",
+            "ts"
+          ],
           "description": "Specify the extension type of the localization files. Default is JavaScript, but you can be changed to TypeScript."
         }
       }
@@ -114,9 +117,9 @@
     "@types/csv-stringify": "1.4.2",
     "@types/mocha": "2.2.42",
     "@types/node": "10.12.21",
-    "tslint": "5.12.1",
+    "tslint": "5.18.0",
     "typescript": "3.3.1",
-    "vscode": "1.1.28"
+    "vscode": "1.1.36"
   },
   "dependencies": {
     "csv-parse": "2.5.0",
