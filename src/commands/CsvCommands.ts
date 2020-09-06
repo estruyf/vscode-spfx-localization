@@ -166,7 +166,7 @@ export default class CsvCommands {
           // Check if an option was provided
           if (defaultResx) {
             // Start the CSV data
-            CsvHelper.startCsvImporting(csvData, defaultResx, resx);
+            await CsvHelper.startCsvImporting(csvData, defaultResx, resx);
           }
         }
       } else {
