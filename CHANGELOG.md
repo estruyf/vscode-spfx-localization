@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.4.0] - 2020-09-07
+
+**Enhancements** 
+
+- [#6](https://github.com/estruyf/vscode-spfx-localization/issues/6): Updating MyStrings.d.ts when importing CSV
+
 ## [1.3.0] - 2019-08-07
 
 **Enhancements**
