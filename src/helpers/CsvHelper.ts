@@ -20,7 +20,7 @@ export default class CsvHelper {
    * @param impLocale 
    * @param resx 
    */
-  public static startCsvImporting(csvData: string[][], impLocale: string, resx: LocalizedResourceValue[]) {
+  public static async startCsvImporting(csvData: string[][], impLocale: string, resx: LocalizedResourceValue[]) {
     // Get the header information
     const csvHeaders = this.getHeaders(csvData);
     if (csvHeaders && csvHeaders.keyIdx !== null) {
@@ -31,11 +31,11 @@ export default class CsvHelper {
         if (impLocale === OPTION_IMPORT_ALL) {
           // Full import
           for (const localeResx of resx) {
-            ImportLocaleHelper.createLocaleFiles(localeResx, localeData);
+            await ImportLocaleHelper.createLocaleFiles(localeResx, localeData);
           }
         } else {
           // Single import
-          ImportLocaleHelper.createLocaleFiles(resx.find(r => r.key === impLocale), localeData);
+          await ImportLocaleHelper.createLocaleFiles(resx.find(r => r.key === impLocale), localeData);
         }
       }
     } else {
