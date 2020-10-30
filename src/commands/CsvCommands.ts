@@ -6,7 +6,7 @@ import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL, CONFIG_FILE_EXTENSION } from '../helpers/ExtensionSettings';
+import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL, CONFIG_FILE_EXTENSION, CONFIG_CSV_USE_BOM } from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
 
@@ -84,14 +84,16 @@ export default class CsvCommands {
               throw new Error(`The "spfxLocalization.csvFileLocation" configuration setting is not provided.`);
             }
 
+            const useBom = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_BOM);
+
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
             if (!csvData) {
-              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension);
+              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom);
             }
 
             // Start the export
-            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key));
+            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom));
           }
         }
       }
