@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.5.0] - 2020-09-07
+
+- Added support for `UTF8 BOM` marker option thanks to [Nikolay Belykh](https://github.com/nbelyh)
+
 ## [1.4.0] - 2020-09-07
 
 **Enhancements** 
