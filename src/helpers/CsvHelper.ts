@@ -7,7 +7,7 @@ import Logging from "../commands/Logging";
 import ImportLocaleHelper from "./ImportLocaleHelper";
 import { LocaleKeyValue } from "../models/LocaleKeyValue";
 import ProjectFileHelper from "./ProjectFileHelper";
-import { OPTION_IMPORT_ALL } from "./ExtensionSettings";
+import { OPTION_IMPORT_ALL, UTF8_BOM } from "./ExtensionSettings";
 
 const LOCALE_HEADER = "Locale";
 
@@ -52,7 +52,7 @@ export default class CsvHelper {
    * @param delimiter 
    * @param fileExtension 
    */
-  public static createCsvFile(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, delimiter: string, fileExtension: string): string {
+  public static createCsvFile(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, delimiter: string, fileExtension: string, useBom: boolean): string {
     const locales = localeFiles.map(f => {
       const filePath = f.path.substring(f.path.lastIndexOf("/") + 1);
       return `${LOCALE_HEADER} ${filePath.replace(`.${fileExtension}`, "")}`;
@@ -60,7 +60,8 @@ export default class CsvHelper {
     // Create the headers for the CSV file
     const headers = ["key", ...locales, resource.key];
     const filePath = ProjectFileHelper.getAbsPath(csvFileLocation);
-    fs.writeFileSync(filePath, headers.join(delimiter));
+    const bom = useBom ? UTF8_BOM : '';
+    fs.writeFileSync(filePath, bom + headers.join(delimiter));
     return headers.join(delimiter);
   }
 
@@ -99,12 +100,14 @@ export default class CsvHelper {
    * @param fileLocation 
    * @param fileData 
    * @param delimiter 
+   * @param useBom
    */
-  public static writeToCsvFile(fileLocation: string, fileData: string[][], delimiter: string) {
+  public static writeToCsvFile(fileLocation: string, fileData: string[][], delimiter: string, useBom: boolean) {
     stringify(fileData, { delimiter }, (err: any | Error, output: any) => {
       if (output) {
         const filePath = ProjectFileHelper.getAbsPath(fileLocation);
-        fs.writeFileSync(filePath, output, { encoding: "utf8" });
+        const bom = useBom ? UTF8_BOM : '';
+        fs.writeFileSync(filePath, bom + output, { encoding: "utf8" });
         Logging.info(`Exported the locale data to the CSV file.`);
       } else {
         Logging.error(`Something went wrong while writing to the CSV file.`);
