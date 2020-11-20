@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.5.1] - 2020-11-20
+
+- [#5](https://github.com/estruyf/vscode-spfx-localization/issues/5): Fix to support WSL thanks to [Nikolay Belykh](https://github.com/nbelyh)
+
 ## [1.5.0] - 2020-11-19
 
 - Added support for `UTF8 BOM` marker option thanks to [Nikolay Belykh](https://github.com/nbelyh)
