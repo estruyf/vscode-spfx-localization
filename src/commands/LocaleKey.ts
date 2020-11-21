@@ -227,20 +227,13 @@ export class LocaleKey {
     let idx = -1;
     // Check if "d.ts" file
     if (fileData.fileName.endsWith(".d.ts")) {
-      // Check if line starts with "declare interface" and ends with "{"
-      idx = fileLines.findIndex(line => {
-        const matches = line.trim().match(/(^declare interface|{$)/gi);
-        return matches !== null && matches.length >= 2;
-      });
-    } 
+      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.FindPositionTs);
+  }
 
     // Check if "js" file
     if (fileData.fileName.endsWith(".js") || (fileData.fileName.endsWith(".ts") && !fileData.fileName.endsWith(".d.ts"))) {
       // Check if line starts with "return" and ends with "{"
-      idx = fileLines.findIndex(line => {
-        const matches = line.trim().match(/(^return|{$)/gi);
-        return matches !== null && matches.length >= 2;
-      });
+      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.FindPositionJs);
     }
 
     // Check if the line was found, add the key and save the file

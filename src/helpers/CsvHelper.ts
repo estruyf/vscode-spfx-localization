@@ -171,7 +171,8 @@ export default class CsvHelper {
     // Check if rowData length is equal to rowDefinition length
     if (rowData.length === rowDefinition.length) {
       // Add the new row
-      csvData.push(rowData);
+      const insertRow = this.findInsertRowForKey(csvData, keyValue.key, rowDefinition.indexOf("key"))
+      csvData.splice(insertRow, 0, rowData);
     }
 
     return csvData;
@@ -191,6 +192,24 @@ export default class CsvHelper {
       }
     }
     return null;
+  }
+
+  /**
+   * Search for proper new row insert position (compare lines by keys, stop at the first which follows the key)
+   * 
+   * @param csvData 
+   * @param localeKey 
+   */
+  private static findInsertRowForKey(csvData: string[][], localeKey: string, cellIdx: number): number {
+    let result = 1;
+    for (let i = 1; i < csvData.length; i++) {
+      const row = csvData[i];
+      const rowKey = row && row[cellIdx];
+      if (rowKey && rowKey.toLowerCase() < localeKey.toLowerCase()) {
+        result = i + 1;
+      }
+    }
+    return result;
   }
 
   /**
