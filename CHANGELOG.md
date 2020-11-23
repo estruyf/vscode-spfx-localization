@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.6.0] - 2020-11-23
+
+- [#12](https://github.com/estruyf/vscode-spfx-localization/issues/12): Support for adding keys in alphabetical order [Nikolay Belykh](https://github.com/nbelyh)
+
 ## [1.5.1] - 2020-11-20
 
 - [#5](https://github.com/estruyf/vscode-spfx-localization/issues/5): Fix to support WSL thanks to [Nikolay Belykh](https://github.com/nbelyh)
