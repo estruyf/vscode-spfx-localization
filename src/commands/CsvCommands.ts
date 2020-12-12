@@ -6,7 +6,16 @@ import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL, CONFIG_FILE_EXTENSION, CONFIG_CSV_USE_BOM } from '../helpers/ExtensionSettings';
+import { 
+  CONFIG_KEY, 
+  CONFIG_CSV_DELIMITER,
+  CONFIG_CSV_FILELOCATION,
+  OPTION_IMPORT_ALL,
+  CONFIG_FILE_EXTENSION,
+  CONFIG_CSV_USE_BOM,
+  CONFIG_CSV_USE_COMMENT,
+  CONFIG_CSV_USE_COMMENT_TIMESTAMP
+} from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
 
@@ -85,15 +94,19 @@ export default class CsvCommands {
             }
 
             const useBom = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_BOM);
+            const useComment = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_COMMENT);
+            const useCommentTimestamp = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_COMMENT_TIMESTAMP);
 
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
             if (!csvData) {
-              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom);
+              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom, useComment);
             }
 
             // Start the export
-            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom));
+            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => {
+              return ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useCommentTimestamp);
+            })
           }
         }
       }

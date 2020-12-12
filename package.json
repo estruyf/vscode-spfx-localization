@@ -52,6 +52,16 @@
           "default": false,
           "description": "Use UTF8 BOM marker for CSV files. Can be useful on Windows to make UTF8 CSV files recognizable by Excel for example."
         },
+        "spfxLocalization.csvUseComment": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable comment column in CSV. You can use this column for notices, such as 'translated' or 'new'."
+        },
+        "spfxLocalization.csvUseCommentTimestamp": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-fill comment column with current timestamp when new strings are added."
+        },
         "spfxLocalization.autoCsvExport": {
           "type": "boolean",
           "default": false,

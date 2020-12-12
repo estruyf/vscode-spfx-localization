@@ -8,3 +8,5 @@ export const OPTION_IMPORT_ALL = "Import to all";
 
 export const CONFIG_CSV_USE_BOM = "csvUseBom";
 export const UTF8_BOM = '\ufeff';
+export const CONFIG_CSV_USE_COMMENT = "csvUseComment";
+export const CONFIG_CSV_USE_COMMENT_TIMESTAMP = "csvUseCommentTimestamp";
