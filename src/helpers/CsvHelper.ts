@@ -159,7 +159,7 @@ export default class CsvHelper {
       let rowModified = false;
 
       for (const locale of csvHeaders.localeIdx) {
-        if (locale.key === localeName && rowData[locale.idx] === "") {
+        if (locale.key === localeName && !rowData[locale.idx]) {
           rowData[locale.idx] = keyValue.value;
           rowModified = true;
         }
@@ -196,7 +196,9 @@ export default class CsvHelper {
       rowData[csvHeaders.keyIdx] = keyValue.key;
 
       for (const locale of csvHeaders.localeIdx) {
-        rowData[locale.idx] = keyValue.value; // Add the locale key to the CSV data
+        if (locale.key === localeName) {
+          rowData[locale.idx] = keyValue.value; // Add the locale key to the CSV data
+        }
       }
 
       for (const resx of csvHeaders.resxNames) {

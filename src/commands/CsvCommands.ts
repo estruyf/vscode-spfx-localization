@@ -58,12 +58,13 @@ export default class CsvCommands {
    */
   public static async export(resxToUse: LocalizedResourceValue | null = null) {
     try {
+      const config = vscode.workspace.getConfiguration(CONFIG_KEY);
       // Use the provided resource or ask which resource file to use
       const resources = resxToUse ? [resxToUse] : await this.getResourceToUse();
       if (resources && resources.length > 0) {
         for (const resource of resources) {
           if (resource) {
-            let fileExtension: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_FILE_EXTENSION);
+            let fileExtension: string | undefined = config.get(CONFIG_FILE_EXTENSION);
             if (!fileExtension) {
               fileExtension = "js";
             }
@@ -80,22 +81,22 @@ export default class CsvCommands {
               localeFiles = localeFiles.filter(f => !f.path.includes("mystrings.d.ts"));
             }
 
-            let delimiter: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_DELIMITER);
+            let delimiter: string | undefined = config.get(CONFIG_CSV_DELIMITER);
             if (!delimiter) {
               delimiter = ";";
               Logging.warning(`The delimiter setting was empty, ";" will be used instead.`);
             }
 
             // Retrieve the settings for the extension
-            const csvFileLocation: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_FILELOCATION);
+            const csvFileLocation: string | undefined = config.get(CONFIG_CSV_FILELOCATION);
             if (!csvFileLocation) {
               Logging.error(`The "spfxLocalization.csvFileLocation" configuration setting is not provided.`);
               throw new Error(`The "spfxLocalization.csvFileLocation" configuration setting is not provided.`);
             }
 
-            const useBom = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_BOM);
-            const useComment = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_COMMENT);
-            const useCommentTimestamp = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_COMMENT_TIMESTAMP);
+            const useBom = !!config.get(CONFIG_CSV_USE_BOM);
+            const useComment = !!config.get(CONFIG_CSV_USE_COMMENT);
+            const useCommentTimestamp = !!config.get(CONFIG_CSV_USE_COMMENT_TIMESTAMP);
 
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
