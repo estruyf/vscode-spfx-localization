@@ -166,7 +166,7 @@ export default class CsvHelper {
       }
 
       for (const resx of csvHeaders.resxNames) {
-        if (resourceName === resx.key && rowData[resx.idx] === "") {
+        if (resourceName === resx.key && !rowData[resx.idx]) {
           rowData[resx.idx] = "x"; // Specify that the key is used in the specified resource
           rowModified = true;
         }
