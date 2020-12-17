@@ -15,8 +15,7 @@ export default class ExportLocaleHelper {
    * @param delimiter
    * @param resourceName
    */
-  public static async startExport(err: any | Error, csvData: string[][], localeFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string, useBom: boolean
-    , useComment: boolean, useCommentTimestamp: boolean): Promise<void> {
+  public static async startExport(err: any | Error, csvData: string[][], localeFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string, useBom: boolean , useComment: boolean, useTimestamp: boolean): Promise<void> {
     // Start looping over the JS Locale files
     for (const localeFile of localeFiles) {
       const localeData = await vscode.workspace.openTextDocument(localeFile);
@@ -27,7 +26,7 @@ export default class ExportLocaleHelper {
           const fileName = path.basename(localeData.fileName);
           const localeName = fileName.split('.').slice(0, -1).join('.');
           // Start adding/updating the key and values to the CSV data
-          csvData = CsvHelper.updateData(csvData, keyValuePairs, localeName, resourceName, useComment, useCommentTimestamp);
+          csvData = CsvHelper.updateData(csvData, keyValuePairs, localeName, resourceName, useComment, useTimestamp);
         }
       }
     }

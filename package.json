@@ -57,10 +57,10 @@
           "default": false,
           "description": "Enable comment column in CSV. You can use this column for notices, such as 'translated' or 'new'."
         },
-        "spfxLocalization.csvUseCommentTimestamp": {
+        "spfxLocalization.csvUseTimestamp": {
           "type": "boolean",
           "default": false,
-          "description": "Auto-fill comment column with current timestamp when new strings are added."
+          "description": "Auto-fill timestamp column with current timestamp when new strings are added."
         },
         "spfxLocalization.autoCsvExport": {
           "type": "boolean",
