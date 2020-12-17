@@ -6,6 +6,7 @@ import { LocalizedResourceValue } from "../models/Config";
 import { LocaleCsvData, LocaleData } from "../models/LocaleCsvInfo";
 import ProjectFileHelper from "./ProjectFileHelper";
 import { CONFIG_KEY, CONFIG_FILE_EXTENSION } from "./ExtensionSettings";
+import TextHelper from "./TextHelper";
 
 export default class ImportLocaleHelper {
 
@@ -110,10 +111,11 @@ define([], () => {
       // Check if the line was found, add the key and save the file
       if (!fileContents.includes(`${localeKey}: string;`)) {
         applyEdit = true;
-        const getLinePos = fileLines[startPos + 1].search(/\S|$/);
+        const getLine = TextHelper.findInsertPosition(fileLines, localeKey!, TextHelper.FindPositionTs);
+        const getLinePos = fileLines[getLine + 1].search(/\S|$/);
         // Create the data to insert in the file
         const newLineData = `${localeKey}: string;\r\n${' '.repeat(getLinePos)}`;
-        edit.insert(fileData.uri, new vscode.Position((startPos + 1), getLinePos), newLineData);
+        edit.insert(fileData.uri, new vscode.Position(getLine+1, getLinePos), newLineData);
       }
     }
 

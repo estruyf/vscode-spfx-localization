@@ -6,7 +6,16 @@ import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { CONFIG_KEY, CONFIG_CSV_DELIMITER, CONFIG_CSV_FILELOCATION, OPTION_IMPORT_ALL, CONFIG_FILE_EXTENSION, CONFIG_CSV_USE_BOM } from '../helpers/ExtensionSettings';
+import { 
+  CONFIG_KEY, 
+  CONFIG_CSV_DELIMITER,
+  CONFIG_CSV_FILELOCATION,
+  OPTION_IMPORT_ALL,
+  CONFIG_FILE_EXTENSION,
+  CONFIG_CSV_USE_BOM,
+  CONFIG_CSV_USE_COMMENT,
+  CONFIG_CSV_USE_TIMESTAMP
+} from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
 
@@ -49,12 +58,13 @@ export default class CsvCommands {
    */
   public static async export(resxToUse: LocalizedResourceValue | null = null) {
     try {
+      const config = vscode.workspace.getConfiguration(CONFIG_KEY);
       // Use the provided resource or ask which resource file to use
       const resources = resxToUse ? [resxToUse] : await this.getResourceToUse();
       if (resources && resources.length > 0) {
         for (const resource of resources) {
           if (resource) {
-            let fileExtension: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_FILE_EXTENSION);
+            let fileExtension: string | undefined = config.get(CONFIG_FILE_EXTENSION);
             if (!fileExtension) {
               fileExtension = "js";
             }
@@ -71,29 +81,33 @@ export default class CsvCommands {
               localeFiles = localeFiles.filter(f => !f.path.includes("mystrings.d.ts"));
             }
 
-            let delimiter: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_DELIMITER);
+            let delimiter: string | undefined = config.get(CONFIG_CSV_DELIMITER);
             if (!delimiter) {
               delimiter = ";";
               Logging.warning(`The delimiter setting was empty, ";" will be used instead.`);
             }
 
             // Retrieve the settings for the extension
-            const csvFileLocation: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_FILELOCATION);
+            const csvFileLocation: string | undefined = config.get(CONFIG_CSV_FILELOCATION);
             if (!csvFileLocation) {
               Logging.error(`The "spfxLocalization.csvFileLocation" configuration setting is not provided.`);
               throw new Error(`The "spfxLocalization.csvFileLocation" configuration setting is not provided.`);
             }
 
-            const useBom = !!vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_USE_BOM);
+            const useBom = !!config.get(CONFIG_CSV_USE_BOM);
+            const useComment = !!config.get(CONFIG_CSV_USE_COMMENT);
+            const useTimestamp = !!config.get(CONFIG_CSV_USE_TIMESTAMP);
 
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
             if (!csvData) {
-              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom);
+              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom, useComment, useTimestamp);
             }
 
             // Start the export
-            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom));
+            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => {
+              return ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
+            })
           }
         }
       }

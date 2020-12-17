@@ -1,8 +1,12 @@
 # Change Log
 
+## [1.7.0] - 2020-11-23
+
+- [#11](https://github.com/estruyf/vscode-spfx-localization/issues/11): Support for comments and timestamps added to the CSV export. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
+
 ## [1.6.0] - 2020-11-23
 
-- [#12](https://github.com/estruyf/vscode-spfx-localization/issues/12): Support for adding keys in alphabetical order [Nikolay Belykh](https://github.com/nbelyh)
+- [#12](https://github.com/estruyf/vscode-spfx-localization/issues/12): Support for adding keys in alphabetical order. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
 
 ## [1.5.1] - 2020-11-20
 
