@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.7.0] - 2020-11-23
+## [1.7.0] - 2020-12-17
 
 - [#11](https://github.com/estruyf/vscode-spfx-localization/issues/11): Support for comments and timestamps added to the CSV export. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
 
