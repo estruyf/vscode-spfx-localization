@@ -6,8 +6,8 @@ import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { 
-  CONFIG_KEY, 
+import {
+  CONFIG_KEY,
   CONFIG_CSV_DELIMITER,
   CONFIG_CSV_FILELOCATION,
   OPTION_IMPORT_ALL,
@@ -106,7 +106,10 @@ export default class CsvCommands {
 
             // Start the export
             parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => {
-              return ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
+              if (err)
+                Logging.error(err.message ? err.message : `Unable to read the CSV file.`);
+              else
+                ExportLocaleHelper.startExport(csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
             })
           }
         }
