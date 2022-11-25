@@ -13,8 +13,6 @@ import {
   OPTION_IMPORT_ALL,
   CONFIG_FILE_EXTENSION,
   CONFIG_CSV_USE_BOM,
-  CONFIG_CSV_USE_COMMENT,
-  CONFIG_CSV_USE_TIMESTAMP
 } from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
@@ -95,13 +93,11 @@ export default class CsvCommands {
             }
 
             const useBom = !!config.get(CONFIG_CSV_USE_BOM);
-            const useComment = !!config.get(CONFIG_CSV_USE_COMMENT);
-            const useTimestamp = !!config.get(CONFIG_CSV_USE_TIMESTAMP);
 
             // Get the CSV file or create one
             let csvData = await this.getCsvFile(true);
             if (!csvData) {
-              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom, useComment, useTimestamp);
+              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom);
             }
 
             // Start the export
@@ -109,7 +105,7 @@ export default class CsvCommands {
               if (err)
                 Logging.error(err.message ? err.message : `Unable to read the CSV file.`);
               else
-                ExportLocaleHelper.startExport(csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
+                ExportLocaleHelper.startExport(csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom);
             })
           }
         }
