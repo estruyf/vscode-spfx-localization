@@ -6,10 +6,13 @@ export class CsvDataExcel implements ICsvData {
   private wb: ExcelJS.Workbook;
   private ws: ExcelJS.Worksheet;
 
+  private columnCount = -1;
+
   constructor(data?: string[][], name?: string) {
     this.wb = new ExcelJS.Workbook();
     this.ws = this.wb.addWorksheet(name);
     if (data) {
+      this.columnCount = data[0].length;
       this.ws.addRows(data as any[]);
     }
   }
@@ -27,7 +30,7 @@ export class CsvDataExcel implements ICsvData {
   }
 
   getValue(r: number, c: number): string {
-    if (r < this.ws.rowCount && c < this.ws.columnCount) {
+    if (r < this.ws.rowCount && c < this.columnCount) {
       const cell = this.ws.getCell(r + 1, c + 1);
       return cell.value as string;
     } else {
@@ -36,7 +39,7 @@ export class CsvDataExcel implements ICsvData {
   }
 
   setValue(r: number, c: number, v: string) {
-    if (r < this.ws.rowCount && c < this.ws.columnCount) {
+    if (r < this.ws.rowCount && c < this.columnCount) {
       const cell = this.ws.getCell(r + 1, c + 1);
       cell.value = v;
     }
@@ -65,6 +68,7 @@ export class CsvDataExcel implements ICsvData {
       this.wb.xlsx.readFile(filePath).then(wb => {
         this.wb = wb;
         this.ws = wb.worksheets[0];
+        this.columnCount = this.ws.columnCount;
         resolve(true);
       }, err => {
         reject(err);
