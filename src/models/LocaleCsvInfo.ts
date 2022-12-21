@@ -1,6 +1,6 @@
 
 export interface LocaleCsvInfo {
-  keyIdx: number | null;
+  keyIdx: number;
   localeIdx: HeaderIdx[];
   resxNames: HeaderIdx[];
 }

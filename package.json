@@ -40,7 +40,7 @@
         "spfxLocalization.csvFileLocation": {
           "type": "string",
           "default": "./spfx-locale.csv",
-          "description": "The location of the SPFx locale labels CSV file."
+          "description": "The location of the SPFx locale labels CSV/XLSX file."
         },
         "spfxLocalization.csvDelimiter": {
           "type": "string",
@@ -55,7 +55,7 @@
         "spfxLocalization.autoCsvExport": {
           "type": "boolean",
           "default": false,
-          "description": "Specify if you want to automatically export to the CSV file when creating new labels."
+          "description": "Specify if you want to automatically export to the CSV/XLSX file when creating new labels."
         },
         "spfxLocalization.localeFileExtension": {
           "type": "string",
@@ -83,11 +83,11 @@
       },
       {
         "command": "extension.spfxCsvImport",
-        "title": "SPFx import locale labels from CSV"
+        "title": "SPFx import locale labels from CSV/XLSX"
       },
       {
         "command": "extension.spfxCsvExport",
-        "title": "SPFx export locale labels to CSV"
+        "title": "SPFx export locale labels to CSV/XLSX"
       }
     ],
     "menus": {
@@ -112,8 +112,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -watch -p ./tsconfig.json",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
@@ -121,13 +121,14 @@
     "@types/csv-parse": "1.1.11",
     "@types/csv-stringify": "1.4.2",
     "@types/mocha": "2.2.42",
-    "@types/node": "10.12.21",
+    "@types/node": "^14.0.27",
     "tslint": "5.18.0",
-    "typescript": "3.3.1",
+    "typescript": "^3.9.10",
     "vscode": "1.1.36"
   },
   "dependencies": {
     "csv-parse": "4.4.6",
-    "csv-stringify": "3.1.1"
+    "csv-stringify": "3.1.1",
+    "exceljs": "^4.3.0"
   }
 }

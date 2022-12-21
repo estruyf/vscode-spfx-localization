@@ -1,16 +1,30 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import * as stringify from "csv-stringify";
+import * as path from "path";
 import { LocalizedResourceValue } from "../models/Config";
 import { LocaleCsvInfo, LocaleCsvData } from "../models/LocaleCsvInfo";
 import Logging from "../commands/Logging";
 import ImportLocaleHelper from "./ImportLocaleHelper";
 import { LocaleKeyValue } from "../models/LocaleKeyValue";
 import ProjectFileHelper from "./ProjectFileHelper";
-import { OPTION_IMPORT_ALL, UTF8_BOM } from "./ExtensionSettings";
+import { OPTION_IMPORT_ALL } from "./ExtensionSettings";
 import { LOCALE_HEADER } from "../constants/CsvHeaders";
+import { ICsvData } from "./CsvData";
+import { CsvDataArray } from "./CsvDataArray";
+import { CsvDataExcel } from "./CsvDataExcel";
 
 export default class CsvHelper {
+
+  public static async openFile(filePath: string, delimiter: string, bom: boolean): Promise<ICsvData | null> {
+
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+
+    const result: ICsvData = this.isCsv(filePath) ? new CsvDataArray() : new CsvDataExcel();
+    await result.read(filePath, { delimiter, bom });
+    return result;
+  }
 
   /**
    * Start processing the CSV data
@@ -19,10 +33,10 @@ export default class CsvHelper {
    * @param impLocale 
    * @param resx 
    */
-  public static async startCsvImporting(csvData: string[][], impLocale: string, resx: LocalizedResourceValue[]) {
+  public static async startCsvImporting(csvData: ICsvData, impLocale: string, resx: LocalizedResourceValue[]) {
     // Get the header information
     const csvHeaders = this.getHeaders(csvData);
-    if (csvHeaders && csvHeaders.keyIdx !== null) {
+    if (csvHeaders && csvHeaders.keyIdx >= 0) {
       // Process the CSV data
       const localeData = this.processCsvData(csvData, csvHeaders);
       if (localeData) {
@@ -51,18 +65,19 @@ export default class CsvHelper {
    * @param delimiter 
    * @param fileExtension 
    */
-  public static createCsvFile(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, delimiter: string, fileExtension: string, useBom: boolean): string {
+  public static async createCsvData(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, fileExtension: string): Promise<ICsvData> {
     const locales = localeFiles.map(f => {
       const filePath = f.path.substring(f.path.lastIndexOf("/") + 1);
-      return `${LOCALE_HEADER} ${filePath.replace(`.${fileExtension}`, "")}`;
+      return filePath.replace(`.${fileExtension}`, "");
     });
     // Create the headers for the CSV file
     const headers = ["key", ...locales, resource.key];
 
-    const filePath = ProjectFileHelper.getAbsPath(csvFileLocation);
-    const bom = useBom ? UTF8_BOM : '';
-    fs.writeFileSync(filePath, bom + headers.join(delimiter));
-    return headers.join(delimiter);
+    if (this.isCsv(csvFileLocation)) {
+      return new CsvDataArray([headers], resource.key);
+    } else {
+      return new CsvDataExcel([headers], resource.key);
+    }
   }
 
   /**
@@ -72,46 +87,45 @@ export default class CsvHelper {
    * @param localeName 
    * @param resourceName 
    */
-  public static updateData(csvData: string[][], keyValuePairs: LocaleKeyValue[], localeName: string, resourceName: string): string[][] {
+  public static updateData(csvData: ICsvData, keyValuePairs: LocaleKeyValue[], localeName: string, resourceName: string) {
 
     const csvHeaders = this.getHeaders(csvData);
-   
-    if (csvHeaders && csvHeaders.keyIdx !== null) {
+
+    if (csvHeaders && csvHeaders.keyIdx >= 0) {
       // Start looping over the keyValuePairs
       for (const keyValue of keyValuePairs) {
         const rowIdx = this.findRowForKey(csvData, keyValue.key, csvHeaders.keyIdx);
         // Check if rowIdx has been found
         if (rowIdx) {
           // Update the row data
-          csvData = this.updateDataRow(csvData, rowIdx, csvHeaders, keyValue, localeName, resourceName);
+          this.updateDataRow(csvData, rowIdx, csvHeaders, keyValue, localeName, resourceName);
         } else {
           // Key wasn't found, adding a new data row
-          csvData = this.addDataRow(csvData, csvHeaders, keyValue, localeName, resourceName);
+          this.addDataRow(csvData, csvHeaders, keyValue, localeName, resourceName);
         }
       }
     }
-    return csvData;
+  }
+
+  public static isCsv(filePath: string) {
+    return path.extname(filePath).toLocaleLowerCase() === '.csv';
   }
 
   /**
    * Write the CSV data to the file
    * 
    * @param fileLocation 
-   * @param fileData 
+   * @param csvData 
    * @param delimiter 
    * @param useBom
    */
-  public static writeToCsvFile(fileLocation: string, fileData: string[][], delimiter: string, useBom: boolean) {
-    stringify(fileData, { delimiter }, (err: any | Error, output: any) => {
-      if (output) {
-        const filePath = ProjectFileHelper.getAbsPath(fileLocation);
-        const bom = useBom ? UTF8_BOM : '';
-        fs.writeFileSync(filePath, bom + output, { encoding: "utf8" });
-        Logging.info(`Exported the locale data to the CSV file.`);
-      } else {
-        Logging.error(`Something went wrong while writing to the CSV file.`);
-      }
-    });
+  public static async writeToCsvFile(fileLocation: string, csvData: ICsvData, delimiter: string, bom: boolean) {
+    const filePath = ProjectFileHelper.getAbsPath(fileLocation);
+    if (await csvData.write(filePath, { delimiter, bom })) {
+      Logging.info(`Exported the locale data to the CSV file.`);
+    } else {
+      Logging.error(`Something went wrong while writing to the CSV file.`);
+    }
   }
 
   /**
@@ -124,28 +138,29 @@ export default class CsvHelper {
    * @param localeName 
    * @param resourceName 
    */
-  private static updateDataRow(csvData: string[][], rowIndex: number, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string): string[][] {
-    // Get the row
-    let rowData = csvData[rowIndex];
-    if (rowData) {
-      // let rowModified = false;
+  private static updateDataRow(csvData: ICsvData, rowIndex: number, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string) {
+    // let rowModified = false;
 
-      for (const locale of csvHeaders.localeIdx) {
-        if (locale.key === localeName && !rowData[locale.idx]) {
-          rowData[locale.idx] = keyValue.value;
-          // rowModified = true;
+    for (const locale of csvHeaders.localeIdx) {
+      if (locale.key === localeName) {
+        const existingValue = csvData.getValue(rowIndex, locale.idx);
+        if (!existingValue) {
+          csvData.setValue(rowIndex, locale.idx, keyValue.value);
+        } else {
+          if (existingValue !== keyValue.value) {
+            Logging.warning(`Ignoring overwritten ${keyValue.key} in ${localeName} '${keyValue.value}'. Keeping '${existingValue}'.`);
+          }
         }
-      }
-
-      for (const resx of csvHeaders.resxNames) {
-        if (resourceName === resx.key && !rowData[resx.idx]) {
-          rowData[resx.idx] = "x"; // Specify that the key is used in the specified resource
-          // rowModified = true;
-        }
+        // rowModified = true;
       }
     }
 
-    return csvData;
+    for (const resx of csvHeaders.resxNames) {
+      if (resourceName === resx.key && !csvData.getValue(rowIndex, resx.idx)) {
+        csvData.setValue(rowIndex, resx.idx, "x"); // Specify that the key is used in the specified resource
+        // rowModified = true;
+      }
+    }
   }
 
   /**
@@ -157,30 +172,27 @@ export default class CsvHelper {
    * @param localeName 
    * @param resourceName 
    */
-  private static addDataRow(csvData: string[][], csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string): string[][] {
-    let rowData = [];
-    if (csvHeaders.keyIdx !== null) {
+  private static addDataRow(csvData: ICsvData, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string) {
+    if (csvHeaders.keyIdx >= 0) {
 
-      rowData[csvHeaders.keyIdx] = keyValue.key;
+      // Add the new row
+      const insertRow = this.findInsertRowForKey(csvData, keyValue.key, csvHeaders.keyIdx)
+      csvData.addRow(insertRow);
+
+      csvData.setValue(insertRow, csvHeaders.keyIdx, keyValue.key);
 
       for (const locale of csvHeaders.localeIdx) {
         if (locale.key === localeName) {
-          rowData[locale.idx] = keyValue.value; // Add the locale key to the CSV data
+          csvData.setValue(insertRow, locale.idx, keyValue.value); // Add the locale key to the CSV data
         }
       }
 
       for (const resx of csvHeaders.resxNames) {
         if (resourceName === resx.key) {
-          rowData[resx.idx] = "x"; // Specify that the key is used in the specified resource
+          csvData.setValue(insertRow, resx.idx, "x"); // Specify that the key is used in the specified resource
         }
       }
-
-      // Add the new row
-      const insertRow = this.findInsertRowForKey(csvData, keyValue.key, csvHeaders.keyIdx!)
-      csvData.splice(insertRow, 0, rowData);
     }
-
-    return csvData;
   }
 
   /**
@@ -189,11 +201,10 @@ export default class CsvHelper {
    * @param csvData 
    * @param localeKey 
    */
-  private static findRowForKey(csvData: string[][], localeKey: string, cellIdx: number): number | null {
-    for (let i = 0; i < csvData.length; i++) {
-      const row = csvData[i];
-      if (row && row[cellIdx] === localeKey) {
-        return i;
+  private static findRowForKey(csvData: ICsvData, localeKey: string, cellIdx: number): number | null {
+    for (let row = 0; row < csvData.rowCount; row++) {
+      if (row && csvData.getValue(row, cellIdx) === localeKey) {
+        return row;
       }
     }
     return null;
@@ -205,13 +216,12 @@ export default class CsvHelper {
    * @param csvData 
    * @param localeKey 
    */
-  private static findInsertRowForKey(csvData: string[][], localeKey: string, cellIdx: number): number {
+  private static findInsertRowForKey(csvData: ICsvData, localeKey: string, cellIdx: number): number {
     let result = 1;
-    for (let i = 1; i < csvData.length; i++) {
-      const row = csvData[i];
-      const rowKey = row && row[cellIdx];
+    for (let row = 1; row < csvData.rowCount; row++) {
+      const rowKey = row && csvData.getValue(row, cellIdx);
       if (rowKey && rowKey.toLowerCase() < localeKey.toLowerCase()) {
-        result = i + 1;
+        result = row + 1;
       }
     }
     return result;
@@ -223,30 +233,27 @@ export default class CsvHelper {
    * @param csvData 
    * @param csvHeaders 
    */
-  private static processCsvData(csvData: string[][], csvHeaders: LocaleCsvInfo): LocaleCsvData | null {
-    if (csvHeaders.keyIdx !== null) {
+  private static processCsvData(csvData: ICsvData, csvHeaders: LocaleCsvInfo): LocaleCsvData | null {
+    if (csvHeaders.keyIdx >= 0) {
       const localeData: LocaleCsvData = {};
       // Create all the required locale data
       for (const locale of csvHeaders.localeIdx) {
         localeData[locale.key] = [];
       }
       // Start looping over all the rows (filtering out the first row)
-      const allDataRows = csvData.filter((v, i) => i !== 0);
-      for (const row of allDataRows) {
-        if (row) {
-          // Loop over all the locales in the csv file
-          for (const locale of csvHeaders.localeIdx) {
-            // Loop over the available resources
-            for (const resx of csvHeaders.resxNames) {
-              const resxValue = row[resx.idx] || null;
-              // Check if the label is for the current resource
-              if (resxValue && resxValue.toLowerCase() === "x") {
-                localeData[locale.key].push({
-                  key: row[csvHeaders.keyIdx] || null,
-                  label: row[locale.idx] || null,
-                  resx: resx.key || null
-                });
-              }
+      for (let row = 1; row < csvData.rowCount; ++row) {
+        // Loop over all the locales in the csv file
+        for (const locale of csvHeaders.localeIdx) {
+          // Loop over the available resources
+          for (const resx of csvHeaders.resxNames) {
+            const resxValue = csvData.getValue(row, resx.idx) || null;
+            // Check if the label is for the current resource
+            if (resxValue && resxValue.toLowerCase() === "x") {
+              localeData[locale.key].push({
+                key: csvData.getValue(row, csvHeaders.keyIdx) || null,
+                label: csvData.getValue(row, locale.idx) || null,
+                resx: resx.key || null
+              });
             }
           }
         }
@@ -259,42 +266,49 @@ export default class CsvHelper {
     }
   }
 
+  private static getLocaleName(cell: string): string | null {
+    const trimmed = cell.toLowerCase().trim();
+    if (trimmed.startsWith(LOCALE_HEADER.toLowerCase())) {
+      return trimmed.replace(LOCALE_HEADER.toLowerCase(), "").trim();
+    } else {
+      const match = cell && /^[a-z]{2}-[a-z]{2}$/.exec(trimmed);
+      return match && match[0];
+    }
+  }
+
   /**
    * Get the headers of the CSV file
    * 
    * @param csvData 
    */
-  private static getHeaders(csvData: string[][]): LocaleCsvInfo | null {
-    if (csvData && csvData.length > 0) {
-      const firstRow = csvData[0];
-      if (firstRow) {
-        const headerInfo: LocaleCsvInfo = {
-          keyIdx: null,
-          localeIdx: [],
-          resxNames: []
-        };
-        for (let i = 0; i <= firstRow.length; i++) {
-          // Get the cell
-          const cell = firstRow[i];
-          if (cell) {
-            // Add the key index to the object
-            if (cell.toLowerCase() === "key") {
-              headerInfo.keyIdx = i;
-            } else if (cell.toLowerCase().startsWith(LOCALE_HEADER.toLowerCase())) {
-              headerInfo.localeIdx.push({
-                key: cell.toLowerCase().replace(LOCALE_HEADER.toLowerCase(), "").trim(),
-                idx: i
-              });
-            } else {
-              headerInfo.resxNames.push({
-                key: cell,
-                idx: i
-              });
-            }
+  private static getHeaders(csvData: ICsvData): LocaleCsvInfo | null {
+    if (csvData && csvData.rowCount > 0) {
+      const headerInfo: LocaleCsvInfo = {
+        keyIdx: -1,
+        localeIdx: [],
+        resxNames: []
+      };
+      for (let i = 0; i <= csvData.colCount; i++) {
+        // Get the cell
+        const cell = csvData.getValue(0, i);
+        if (cell) {
+          // Add the key index to the object
+          if (cell.toLowerCase() === "key") {
+            headerInfo.keyIdx = i;
+          } else if (CsvHelper.getLocaleName(cell)) {
+            headerInfo.localeIdx.push({
+              key: CsvHelper.getLocaleName(cell)!,
+              idx: i
+            });
+          } else {
+            headerInfo.resxNames.push({
+              key: cell,
+              idx: i
+            });
           }
         }
-        return headerInfo;
       }
+      return headerInfo;
     }
     return null;
   }
