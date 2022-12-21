@@ -122,9 +122,9 @@ export default class CsvHelper {
   public static async writeToCsvFile(fileLocation: string, csvData: ICsvData, delimiter: string, bom: boolean) {
     const filePath = ProjectFileHelper.getAbsPath(fileLocation);
     if (await csvData.write(filePath, { delimiter, bom })) {
-      Logging.info(`Exported the locale data to the CSV file.`);
+      Logging.info(`Exported the locale data to the CSV/XLSX file.`);
     } else {
-      Logging.error(`Something went wrong while writing to the CSV file.`);
+      Logging.error(`Something went wrong while writing to the CSV/XLSX file.`);
     }
   }
 

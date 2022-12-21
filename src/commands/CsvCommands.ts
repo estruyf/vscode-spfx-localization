@@ -47,7 +47,7 @@ export default class CsvCommands {
       if (csvData) {
         this.initializeImport(csvData);
       } else {
-        Logging.error(`The CSV file could not be retrieved. Used file location: "${filePath}".`);
+        Logging.error(`The CSV/XLSX file could not be retrieved. Used file location: "${filePath}".`);
         return null;
       }
     }
@@ -116,7 +116,7 @@ export default class CsvCommands {
                 }
                 ExportLocaleHelper.startExport(csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom);
               } catch (err) {
-                Logging.error(`Unable to read the CSV file. ${err}`);
+                Logging.error(`Unable to read the file ${filePath}. ${err}`);
               }
             }
           }
@@ -200,7 +200,7 @@ export default class CsvCommands {
         Logging.error(`SPFx project config file could not be retrieved`);
       }
     } else {
-      Logging.warning(`The CSV file is empty.`);
+      Logging.warning(`The CSV/XLSX file is empty.`);
     }
   }
 
