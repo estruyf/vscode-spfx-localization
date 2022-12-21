@@ -10,8 +10,8 @@ export class CsvDataExcel implements ICsvData {
     this.wb = new ExcelJS.Workbook();
     this.ws = this.wb.addWorksheet(name);
     if (data) {
-    this.ws.addRows(data as any[]);
-  }
+      this.ws.addRows(data as any[]);
+    }
   }
   
   getData(): string[][] {
@@ -57,7 +57,7 @@ export class CsvDataExcel implements ICsvData {
   write(filePath: string, options: Object): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.wb.xlsx.writeFile(filePath).then(() => resolve(true), err => reject(err));
-    })
+    });
   }
 
   read(filePath: string, options: any): Promise<boolean> {
@@ -69,6 +69,6 @@ export class CsvDataExcel implements ICsvData {
       }, err => {
         reject(err);
       });
-    })
+    });
   }
 }

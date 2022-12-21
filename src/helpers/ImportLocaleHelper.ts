@@ -36,7 +36,7 @@ export default class ImportLocaleHelper {
         const resourceKeys = localeData[key].filter(l => l.resx === resx.key);
         if (resourceKeys && resourceKeys.length > 0) {
 
-          await this.ensureTypescriptKeysDefined(resx, localLabels)
+          await this.ensureTypescriptKeysDefined(resx, localLabels);
 
           // Create the file content
           let fileContents = fileExtension === "ts" ? `declare var define: any;
@@ -74,7 +74,7 @@ define([], () => {
     const definitionFiles = await vscode.workspace.findFiles(`${resourcePath}/*.d.ts`);
 
     // nothing to update
-    if (definitionFiles.length == 0) {
+    if (definitionFiles.length === 0) {
       return;
     }
 
@@ -111,7 +111,7 @@ define([], () => {
       // Check if the line was found, add the key and save the file
       if (!fileContents.includes(`${localeKey}: string;`)) {
         applyEdit = true;
-        const getLine = TextHelper.findInsertPosition(fileLines, localeKey!, TextHelper.FindPositionTs);
+        const getLine = TextHelper.findInsertPosition(fileLines, localeKey!, TextHelper.findPositionTs);
         const getLinePos = fileLines[getLine + 1].search(/\S|$/);
         // Create the data to insert in the file
         const newLineData = `${localeKey}: string;\r\n${' '.repeat(getLinePos)}`;

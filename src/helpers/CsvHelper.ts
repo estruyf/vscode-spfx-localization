@@ -176,7 +176,7 @@ export default class CsvHelper {
     if (csvHeaders.keyIdx >= 0) {
 
       // Add the new row
-      const insertRow = this.findInsertRowForKey(csvData, keyValue.key, csvHeaders.keyIdx)
+      const insertRow = this.findInsertRowForKey(csvData, keyValue.key, csvHeaders.keyIdx);
       csvData.addRow(insertRow);
 
       csvData.setValue(insertRow, csvHeaders.keyIdx, keyValue.key);

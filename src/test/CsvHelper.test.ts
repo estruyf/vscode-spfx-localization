@@ -18,13 +18,13 @@ suite('CsvHelper.findInsertPosition typescript tests', () => {
     const arr = new CsvDataArray(data);
     CsvHelper.updateData(arr, keyValuePairs, localeName, resourceName);
     return arr.getData();
-  }
+  };
 
   const testExcel = (data: string[][], keyValuePairs: LocaleKeyValue[], localeName: string, resourceName: string): string[][] => {
     const arr = new CsvDataExcel(data);
     CsvHelper.updateData(arr, keyValuePairs, localeName, resourceName);
     return arr.getData();
-  }
+  };
 
   [
     { name: "CSV", testOne: testCsv},

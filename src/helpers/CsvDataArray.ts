@@ -1,7 +1,7 @@
 import { ICsvData } from "./CsvData";
 import * as fs from "fs";
-import * as stringify from "csv-stringify";
-import * as parse from "csv-parse";
+import  { stringify } from "csv-stringify";
+import  { parse } from "csv-parse";
 import { UTF8_BOM } from "./ExtensionSettings";
 
 interface IOptions {
@@ -54,7 +54,7 @@ export class CsvDataArray implements ICsvData {
           this.data = data;
           resolve(true);
         }
-      })
+      });
     });
   }
 
@@ -73,7 +73,7 @@ export class CsvDataArray implements ICsvData {
           }
         }
       });
-    })
+    });
   }
 
 }

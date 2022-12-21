@@ -169,7 +169,7 @@ export default class CsvCommands {
    * @param err Parsing error
    * @param csvData Retrieved CSV data from the file
    */
-  private static initializeImport = async (csvData: ICsvData): Promise<void> => {
+  private static async initializeImport (csvData: ICsvData): Promise<void> {
     // Check if the file contained content
     if (csvData && csvData.rowCount > 0) {
       // Retrieve the config data

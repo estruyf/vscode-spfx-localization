@@ -18,12 +18,14 @@ suite('CsvData file tests', () => {
   ].forEach(({ name, csvData }) => {
 
     test(`read-write ${name}`, async () => {
-      fs.unlinkSync(name);
+      if (fs.existsSync(name)) {
+        fs.unlinkSync(name);
+      }
       await csvData.write(name, { delimiter: ';', bom: true });
       await csvData.read(name, { delimiter: ';', bom: true });
       fs.unlinkSync(name);
       const actual = csvData.getData();
       assert.deepStrictEqual(actual, expected);
     });
-  })
+  });
 });

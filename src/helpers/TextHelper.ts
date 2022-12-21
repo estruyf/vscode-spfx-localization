@@ -28,14 +28,14 @@ export default class TextHelper {
   }
 
   //start: "declare interface {", line: "some_id: string;", end: "}" 
-  public static FindPositionTs : IFindPositionRegexSet = {
+  public static findPositionTs : IFindPositionRegexSet = {
     start: /^\s*declare\s*interface\s*(\w+)\s*\{\s*$/,
     line:  /^\s*(\w+)\s*\:\s*string\s*;\s*$/,
     end:   /^\s*(\})\s*$/,
   };
   
   //start: "return {", line: "some_id: string,", end: "}" 
-  public static FindPositionJs : IFindPositionRegexSet = {
+  public static findPositionJs : IFindPositionRegexSet = {
     start: /^\s*(return\s*\{)\s*$/,
     line:  /^\s*(\w+)\s*\:.*,\s*$/,
     end:   /^\s*(\})\s*;\s*$/,
@@ -50,7 +50,7 @@ export default class TextHelper {
       const line = fileLines[row];
 
       if (inScope) {
-        const idMatches = line.match(regexSet.line)
+        const idMatches = line.match(regexSet.line);
         if (idMatches !== null && idMatches.length > 1) {
           const rowKey = idMatches[1];
           if (rowKey.toLowerCase() < localeKey.toLowerCase()) {
