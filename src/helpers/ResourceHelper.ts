@@ -76,7 +76,8 @@ export default class ResourceHelper {
             // Get the colon location
             const colonIdx = lineVal.indexOf(":");
             if (colonIdx !== -1) {
-              const keyName = lineVal.substring(0, colonIdx);
+              let keyName = lineVal.substring(0, colonIdx);
+              keyName = keyName.trim();
               let keyValue = lineVal.substring((colonIdx + 1));
               keyValue = keyValue.trim();
               keyValue = TextHelper.stripQuotes(keyValue);
