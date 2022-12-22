@@ -8,7 +8,7 @@ import ImportLocaleHelper from "./ImportLocaleHelper";
 import { LocaleKeyValue } from "../models/LocaleKeyValue";
 import ProjectFileHelper from "./ProjectFileHelper";
 import { OPTION_IMPORT_ALL } from "./ExtensionSettings";
-import { LOCALE_HEADER } from "../constants/CsvHeaders";
+import { COMMENT_HEADER, KEY_HEADER, LOCALE_HEADER, TIMESTAMP_HEADER } from "../constants/CsvHeaders";
 import { ICsvData } from "./CsvData";
 import { CsvDataArray } from "./CsvDataArray";
 import { CsvDataExcel } from "./CsvDataExcel";
@@ -65,13 +65,23 @@ export default class CsvHelper {
    * @param delimiter 
    * @param fileExtension 
    */
-  public static async createCsvData(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, fileExtension: string): Promise<ICsvData> {
+  public static async createCsvData(localeFiles: vscode.Uri[], resource: LocalizedResourceValue, csvFileLocation: string, fileExtension: string, useComment: boolean, useTimestamp: boolean): Promise<ICsvData> {
     const locales = localeFiles.map(f => {
       const filePath = f.path.substring(f.path.lastIndexOf("/") + 1);
       return filePath.replace(`.${fileExtension}`, "");
     });
     // Create the headers for the CSV file
-    const headers = ["key", ...locales, resource.key];
+    const headers = [KEY_HEADER, ...locales, resource.key];
+
+    // add comment column if feature is enabled
+    if (useComment) {
+      headers.push(COMMENT_HEADER);
+    }
+
+    // add timestamp column if feature is enabled
+    if (useTimestamp) {
+      headers.push(TIMESTAMP_HEADER);
+    }
 
     if (this.isCsv(csvFileLocation)) {
       return new CsvDataArray([headers], resource.key);
@@ -81,15 +91,24 @@ export default class CsvHelper {
   }
 
   /**
+   * Use current timestamp as default comment for the new strings
+   */
+  private static addTimestamp = () => new Date().toISOString().split('.')[0];
+
+  /**
    * Update the CSV data based on the retrieved locale pairs
    * @param csvData 
    * @param keyValuePairs 
    * @param localeName 
    * @param resourceName 
+   * @param useComment 
+   * @param useTimestamp 
    */
-  public static updateData(csvData: ICsvData, keyValuePairs: LocaleKeyValue[], localeName: string, resourceName: string) {
+  public static updateData(csvData: ICsvData, keyValuePairs: LocaleKeyValue[], localeName: string, resourceName: string, useComment?: boolean, useTimestamp?: boolean) {
 
     const csvHeaders = this.getHeaders(csvData);
+
+    const timestamp = useTimestamp ? this.addTimestamp() : '';
 
     if (csvHeaders && csvHeaders.keyIdx >= 0) {
       // Start looping over the keyValuePairs
@@ -98,10 +117,10 @@ export default class CsvHelper {
         // Check if rowIdx has been found
         if (rowIdx) {
           // Update the row data
-          this.updateDataRow(csvData, rowIdx, csvHeaders, keyValue, localeName, resourceName);
+          this.updateDataRow(csvData, rowIdx, csvHeaders, keyValue, localeName, resourceName, timestamp);
         } else {
           // Key wasn't found, adding a new data row
-          this.addDataRow(csvData, csvHeaders, keyValue, localeName, resourceName);
+          this.addDataRow(csvData, csvHeaders, keyValue, localeName, resourceName, timestamp);
         }
       }
     }
@@ -138,14 +157,15 @@ export default class CsvHelper {
    * @param localeName 
    * @param resourceName 
    */
-  private static updateDataRow(csvData: ICsvData, rowIndex: number, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string) {
-    // let rowModified = false;
+  private static updateDataRow(csvData: ICsvData, rowIndex: number, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string, timestamp: string) {
+    let rowModified = false;
 
     for (const locale of csvHeaders.localeIdx) {
       if (locale.key === localeName) {
         const existingValue = csvData.getValue(rowIndex, locale.idx);
         if (!existingValue) {
           csvData.setValue(rowIndex, locale.idx, keyValue.value);
+          rowModified = true;
         } else {
           if (existingValue !== keyValue.value) {
             Logging.warning(`Ignoring overwritten ${keyValue.key} in ${localeName} '${keyValue.value}'. Keeping '${existingValue}'.`);
@@ -158,8 +178,12 @@ export default class CsvHelper {
     for (const resx of csvHeaders.resxNames) {
       if (resourceName === resx.key && !csvData.getValue(rowIndex, resx.idx)) {
         csvData.setValue(rowIndex, resx.idx, "x"); // Specify that the key is used in the specified resource
-        // rowModified = true;
+        rowModified = true;
       }
+    }
+
+    if (timestamp && csvHeaders.timestampIdx !== null && rowModified) {
+      csvData.setValue(rowIndex, csvHeaders.timestampIdx, timestamp);
     }
   }
 
@@ -172,7 +196,7 @@ export default class CsvHelper {
    * @param localeName 
    * @param resourceName 
    */
-  private static addDataRow(csvData: ICsvData, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string) {
+  private static addDataRow(csvData: ICsvData, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string, timestamp: string) {
     if (csvHeaders.keyIdx >= 0) {
 
       // Add the new row
@@ -191,6 +215,10 @@ export default class CsvHelper {
         if (resourceName === resx.key) {
           csvData.setValue(insertRow, resx.idx, "x"); // Specify that the key is used in the specified resource
         }
+      }
+
+      if (timestamp && csvHeaders.timestampIdx !== null) {
+        csvData.setValue(insertRow, csvHeaders.timestampIdx, timestamp);
       }
     }
   }
@@ -252,6 +280,8 @@ export default class CsvHelper {
               localeData[locale.key].push({
                 key: csvData.getValue(row, csvHeaders.keyIdx) || null,
                 label: csvData.getValue(row, locale.idx) || null,
+                comment: csvHeaders.commentIdx !== null ? csvData.getValue(row, csvHeaders.commentIdx) : null,
+                timestamp: csvHeaders.timestampIdx !== null ? csvData.getValue(row, csvHeaders.timestampIdx) : null,
                 resx: resx.key || null
               });
             }
@@ -261,7 +291,7 @@ export default class CsvHelper {
 
       return localeData;
     } else {
-      Logging.error(`The required "key" header was not found in the CSV file.`);
+      Logging.error(`The required ${KEY_HEADER} header was not found in the CSV file.`);
       return null;
     }
   }
@@ -286,6 +316,8 @@ export default class CsvHelper {
       const headerInfo: LocaleCsvInfo = {
         keyIdx: -1,
         localeIdx: [],
+        commentIdx: null,
+        timestampIdx: null,
         resxNames: []
       };
       for (let i = 0; i <= csvData.colCount; i++) {
@@ -293,8 +325,12 @@ export default class CsvHelper {
         const cell = csvData.getValue(0, i);
         if (cell) {
           // Add the key index to the object
-          if (cell.toLowerCase() === "key") {
+          if (cell.toLowerCase() === KEY_HEADER.toLocaleLowerCase()) {
             headerInfo.keyIdx = i;
+          } else if (cell.toLowerCase() === COMMENT_HEADER.toLowerCase()) {
+            headerInfo.commentIdx = i;
+          } else if (cell.toLowerCase() === TIMESTAMP_HEADER.toLowerCase()) {
+            headerInfo.timestampIdx = i;
           } else if (CsvHelper.getLocaleName(cell)) {
             headerInfo.localeIdx.push({
               key: CsvHelper.getLocaleName(cell)!,

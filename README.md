@@ -66,6 +66,9 @@ The extension has the following settings which you can configure to your own pre
 | `spfxLocalization.autoCsvExport` | Specify if you want to automatically export to the CSV file when creating new labels. | boolean | `false` |
 | `spfxLocalization.localeFileExtension` | Specify the extension type of the localization files. Default is JavaScript, but you can be changed to TypeScript. | enum | "js" \| "ts" |
 | `spfxLocalization.csvUseBom` | Use UTF8 BOM marker for CSV files. Can be useful on Windows to make UTF8 CSV files recognizable by Excel for example. | boolean | `false` |
+| `spfxLocalization.csvUseComment` | Enable comment column in CSV. You can use this column for notices, such as "translated" or "new". | boolean | `false` |
+| `spfxLocalization.csvUseTimestamp` | Auto-fill timestamp column with current timestamp when new strings are added. | boolean | `false` |
+
 
 ## How to use this extension
 
