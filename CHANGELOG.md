@@ -1,5 +1,9 @@
 # Change Log
 
+# [1.8.0] - 2022-12-22
+
+- [#24](https://github.com/estruyf/vscode-spfx-localization/issues/24): Fix for unwanted spaces in localization keys. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
+
 ## [1.7.0] - 2020-12-17
 
 - [#11](https://github.com/estruyf/vscode-spfx-localization/issues/11): Support for comments and timestamps added to the CSV export. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
