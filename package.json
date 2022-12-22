@@ -146,6 +146,6 @@
   "dependencies": {
     "csv-parse": "^5.3.3",
     "csv-stringify": "^6.2.3",
-    "exceljs": "^4.3.0"
+    "@nbelyh/exceljs": "^4.3.1"
   }
 }

@@ -1,5 +1,5 @@
 import { ICsvData } from "./CsvData";
-import * as ExcelJS from 'exceljs';
+import * as ExcelJS from '@nbelyh/exceljs';
 
 export class CsvDataExcel implements ICsvData {
 
