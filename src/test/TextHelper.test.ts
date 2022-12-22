@@ -10,19 +10,19 @@ suite('TextHelper.findInsertPosition typescript tests', () => {
     '  DDD: string;',
     '  FFF: string;',
     '}',
-  ]
+  ];
 
   test('simple insert: AAA', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'AAA', TextHelper.FindPositionTs), 0);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'AAA', TextHelper.findPositionTs), 0);
   });
   test('simple insert: CCC', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'CCC', TextHelper.FindPositionTs), 1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'CCC', TextHelper.findPositionTs), 1);
   });
   test('simple insert: EEE', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'EEE', TextHelper.FindPositionTs), 2);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'EEE', TextHelper.findPositionTs), 2);
   });
   test('simple insert: ZZZ', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'ZZZ', TextHelper.FindPositionTs), 3);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'ZZZ', TextHelper.findPositionTs), 3);
   });
 
   test('default', () => {
@@ -30,9 +30,9 @@ suite('TextHelper.findInsertPosition typescript tests', () => {
     const lines = [
       'declare interface Foo {',
       '}',
-    ]
+    ];
 
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionTs), 0);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionTs), 0);
   });
 
   test('invalid', () => {
@@ -41,14 +41,14 @@ suite('TextHelper.findInsertPosition typescript tests', () => {
       'class XYZ {',
       'AA: string;',
       '}',
-    ]
+    ];
 
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionTs), -1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionTs), -1);
   });
 
   test('empty', () => {
     const lines: string[] = [];
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionTs), -1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionTs), -1);
   });
 
   test('unsorted', () => {
@@ -57,8 +57,8 @@ suite('TextHelper.findInsertPosition typescript tests', () => {
       '  BBB2: string;',
       '  BBB1: string;',
       '}',
-    ]
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB3', TextHelper.FindPositionTs), 2);
+    ];
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB3', TextHelper.findPositionTs), 2);
   });
 
 });
@@ -75,19 +75,19 @@ suite('TextHelper.findInsertPosition javascript tests', () => {
     '  FFF: "F",',
     '  };',
     '});'
-  ]
+  ];
 
   test('simple insert: AAA', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'AAA', TextHelper.FindPositionJs), 1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'AAA', TextHelper.findPositionJs), 1);
   });
   test('simple insert: CCC', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'CCC', TextHelper.FindPositionJs), 2);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'CCC', TextHelper.findPositionJs), 2);
   });
   test('simple insert: EEE', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'EEE', TextHelper.FindPositionJs), 3);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'EEE', TextHelper.findPositionJs), 3);
   });
   test('simple insert: ZZZ', () => {
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'ZZZ', TextHelper.FindPositionJs), 4);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'ZZZ', TextHelper.findPositionJs), 4);
   });
 
   test('default', () => {
@@ -99,7 +99,7 @@ suite('TextHelper.findInsertPosition javascript tests', () => {
       '});'
     ];
 
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionJs), 1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionJs), 1);
   });
 
   test('invalid', () => {
@@ -109,12 +109,12 @@ suite('TextHelper.findInsertPosition javascript tests', () => {
       '}',
     ];
 
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionJs), -1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionJs), -1);
   });
 
   test('empty', () => {
     const lines: string[] = [];
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.FindPositionJs), -1);
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB', TextHelper.findPositionJs), -1);
   });
 
   test('unsorted', () => {
@@ -125,8 +125,8 @@ suite('TextHelper.findInsertPosition javascript tests', () => {
       '  BBB1: "bbb1",',
       '  };',
       '});'
-    ]
-    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB3', TextHelper.FindPositionJs), 3);
+    ];
+    assert.strictEqual(TextHelper.findInsertPosition(lines, 'BBB3', TextHelper.findPositionJs), 3);
   });
 
 });

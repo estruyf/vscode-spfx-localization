@@ -59,6 +59,10 @@ export default class ProjectFileHelper {
     if (resourcePath.startsWith("lib/")) {
       resourcePath = resourcePath.replace("lib/", "src/");
     }
+    // vscode stopped finding localization files if they start with './'
+    if (resourcePath.startsWith('./')) {
+      resourcePath = resourcePath.replace("./", "");
+    }
     return resourcePath;
   }
 

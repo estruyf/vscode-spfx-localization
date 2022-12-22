@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import ResourceHelper from "./ResourceHelper";
 import CsvHelper from "./CsvHelper";
+import { ICsvData } from "./CsvData";
 
 export default class ExportLocaleHelper {
 
@@ -15,7 +16,8 @@ export default class ExportLocaleHelper {
    * @param delimiter
    * @param resourceName
    */
-  public static async startExport(err: any | Error, csvData: string[][], localeFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string, useBom: boolean , useComment: boolean, useTimestamp: boolean): Promise<void> {
+  public static async startExport(csvData: ICsvData, localeFiles: vscode.Uri[], csvLocation: string, delimiter: string, resourceName: string, useBom: boolean,
+    useComment: boolean, useTimestamp: boolean): Promise<void> {
     // Start looping over the JS Locale files
     for (const localeFile of localeFiles) {
       const localeData = await vscode.workspace.openTextDocument(localeFile);
@@ -26,12 +28,12 @@ export default class ExportLocaleHelper {
           const fileName = path.basename(localeData.fileName);
           const localeName = fileName.split('.').slice(0, -1).join('.');
           // Start adding/updating the key and values to the CSV data
-          csvData = CsvHelper.updateData(csvData, keyValuePairs, localeName, resourceName, useComment, useTimestamp);
+          CsvHelper.updateData(csvData, keyValuePairs, localeName, resourceName, useComment, useTimestamp);
         }
       }
     }
 
     // Once all data has been processed, the CSV file can be created
-    CsvHelper.writeToCsvFile(csvLocation, csvData, delimiter, useBom);
+    await CsvHelper.writeToCsvFile(csvLocation, csvData, delimiter, useBom);
   }
 }

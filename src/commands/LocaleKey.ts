@@ -227,13 +227,13 @@ export class LocaleKey {
     let idx = -1;
     // Check if "d.ts" file
     if (fileData.fileName.endsWith(".d.ts")) {
-      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.FindPositionTs);
+      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.findPositionTs);
   }
 
     // Check if "js" file
     if (fileData.fileName.endsWith(".js") || (fileData.fileName.endsWith(".ts") && !fileData.fileName.endsWith(".d.ts"))) {
       // Check if line starts with "return" and ends with "{"
-      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.FindPositionJs);
+      idx = TextHelper.findInsertPosition(fileLines, localeKey, TextHelper.findPositionJs);
     }
 
     // Check if the line was found, add the key and save the file
