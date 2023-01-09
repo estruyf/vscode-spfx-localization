@@ -14,7 +14,8 @@ import {
   CONFIG_FILE_EXTENSION,
   CONFIG_CSV_USE_BOM,
   CONFIG_CSV_USE_COMMENT,
-  CONFIG_CSV_USE_TIMESTAMP
+  CONFIG_CSV_USE_TIMESTAMP,
+  OPTION_EXPORT_ALL
 } from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
@@ -145,7 +146,7 @@ export default class CsvCommands {
         if (resx.length > 1) {
           // Add an option to import all
           let opts = resx.map(r => r.key);
-          opts.push(OPTION_IMPORT_ALL);
+          opts.push(OPTION_EXPORT_ALL);
           defaultResx = await vscode.window.showQuickPick(opts, {
             placeHolder: "Specify for which resource file you want to perform the input.",
             canPickMany: false
@@ -154,7 +155,7 @@ export default class CsvCommands {
 
         // Check if an option was provided
         if (defaultResx) {
-          if (defaultResx === OPTION_IMPORT_ALL) {
+          if (defaultResx === OPTION_EXPORT_ALL) {
             // Return all resources
             return resx;
           } else {
