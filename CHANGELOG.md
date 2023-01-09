@@ -1,5 +1,9 @@
 # Change Log
 
+# [1.9.0] - 2022-01-09
+
+- [#26](https://github.com/estruyf/vscode-spfx-localization/issues/26): Excel format support. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
+
 # [1.8.0] - 2022-12-22
 
 - [#24](https://github.com/estruyf/vscode-spfx-localization/issues/24): Fix for unwanted spaces in localization keys. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
