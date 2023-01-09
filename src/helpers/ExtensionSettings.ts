@@ -5,6 +5,7 @@ export const CONFIG_AUTO_EXPORT = "autoCsvExport";
 export const CONFIG_FILE_EXTENSION = "localeFileExtension";
 
 export const OPTION_IMPORT_ALL = "Import to all";
+export const OPTION_EXPORT_ALL = "Export all";
 
 export const CONFIG_CSV_USE_BOM = "csvUseBom";
 export const UTF8_BOM = '\ufeff';

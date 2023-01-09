@@ -1,20 +1,21 @@
 import * as vscode from 'vscode';
-import * as parse from 'csv-parse';
+import { ICsvData } from '../helpers/CsvData';
 import Logging from './Logging';
 import ProjectFileHelper from '../helpers/ProjectFileHelper';
 import { Config, LocalizedResourceValue } from '../models/Config';
 import ResourceHelper from '../helpers/ResourceHelper';
 import CsvHelper from '../helpers/CsvHelper';
 import ExportLocaleHelper from '../helpers/ExportLocaleHelper';
-import { 
-  CONFIG_KEY, 
+import {
+  CONFIG_KEY,
   CONFIG_CSV_DELIMITER,
   CONFIG_CSV_FILELOCATION,
   OPTION_IMPORT_ALL,
   CONFIG_FILE_EXTENSION,
   CONFIG_CSV_USE_BOM,
   CONFIG_CSV_USE_COMMENT,
-  CONFIG_CSV_USE_TIMESTAMP
+  CONFIG_CSV_USE_TIMESTAMP,
+  OPTION_EXPORT_ALL
 } from '../helpers/ExtensionSettings';
 
 export default class CsvCommands {
@@ -30,18 +31,28 @@ export default class CsvCommands {
    * 5. start (creating and) writing to the files ✅
    */
   public static async import() {
+
+    const config = vscode.workspace.getConfiguration(CONFIG_KEY);
+
     // Retrieve the delimiter
-    let delimiter: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_DELIMITER);
+    let delimiter: string | undefined = config.get(CONFIG_CSV_DELIMITER);
     if (!delimiter) {
       delimiter = ";";
       Logging.warning(`The delimiter setting was empty, ";" will be used instead.`);
     }
-    // Get the contents of the CSV file
-    const csvContents = await this.getCsvFile();
-    if (csvContents) {
-      parse(csvContents, { delimiter }, this.initializeImport);
-    } else {
-      // Already returned an error
+
+    const useBom = !!config.get(CONFIG_CSV_USE_BOM);
+
+    const filePath = this.getCsvFilePath();
+
+    if (filePath) {
+      const csvData = await CsvHelper.openFile(filePath, delimiter, useBom);
+      if (csvData) {
+        this.initializeImport(csvData);
+      } else {
+        Logging.error(`The CSV/XLSX file could not be retrieved. Used file location: "${filePath}".`);
+        return null;
+      }
     }
   }
 
@@ -99,15 +110,20 @@ export default class CsvCommands {
             const useTimestamp = !!config.get(CONFIG_CSV_USE_TIMESTAMP);
 
             // Get the CSV file or create one
-            let csvData = await this.getCsvFile(true);
-            if (!csvData) {
-              csvData = CsvHelper.createCsvFile(localeFiles, resource, csvFileLocation, delimiter, fileExtension, useBom, useComment, useTimestamp);
+            const filePath = await this.getCsvFilePath();
+            
+            if (filePath) {
+              // Start the export
+              try {
+                let csvData = await CsvHelper.openFile(filePath, delimiter, useBom);
+                if (!csvData) {
+                  csvData = await CsvHelper.createCsvData(localeFiles, resource, csvFileLocation, fileExtension, useComment, useTimestamp);
+                }
+                ExportLocaleHelper.startExport(csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
+              } catch (err) {
+                Logging.error(`Unable to read the file ${filePath}. ${err}`);
+              }
             }
-
-            // Start the export
-            parse(csvData, { delimiter }, (err: any | Error, csvData: string[][]) => {
-              return ExportLocaleHelper.startExport(err, csvData, localeFiles, csvFileLocation, delimiter as string, resource.key, useBom, useComment, useTimestamp);
-            })
           }
         }
       }
@@ -130,7 +146,7 @@ export default class CsvCommands {
         if (resx.length > 1) {
           // Add an option to import all
           let opts = resx.map(r => r.key);
-          opts.push(OPTION_IMPORT_ALL);
+          opts.push(OPTION_EXPORT_ALL);
           defaultResx = await vscode.window.showQuickPick(opts, {
             placeHolder: "Specify for which resource file you want to perform the input.",
             canPickMany: false
@@ -139,7 +155,7 @@ export default class CsvCommands {
 
         // Check if an option was provided
         if (defaultResx) {
-          if (defaultResx === OPTION_IMPORT_ALL) {
+          if (defaultResx === OPTION_EXPORT_ALL) {
             // Return all resources
             return resx;
           } else {
@@ -158,9 +174,9 @@ export default class CsvCommands {
    * @param err Parsing error
    * @param csvData Retrieved CSV data from the file
    */
-  private static initializeImport = async (err: any | Error, csvData: string[][]): Promise<void> => {
+  private static async initializeImport (csvData: ICsvData): Promise<void> {
     // Check if the file contained content
-    if (csvData && csvData.length > 0) {
+    if (csvData && csvData.rowCount > 0) {
       // Retrieve the config data
       const configInfo: Config | null = await ProjectFileHelper.getConfig();
       if (configInfo && configInfo.localizedResources) {
@@ -189,7 +205,7 @@ export default class CsvCommands {
         Logging.error(`SPFx project config file could not be retrieved`);
       }
     } else {
-      Logging.warning(`The CSV file is empty.`);
+      Logging.warning(`The CSV/XLSX file is empty.`);
     }
   }
 
@@ -198,7 +214,7 @@ export default class CsvCommands {
    * 
    * @param needsToExists Specify if the file needs to exist
    */
-  private static async getCsvFile(needsToExists: boolean = false): Promise<string | null> {
+  private static getCsvFilePath(): string | null {
     // Retrieve the CSV file config value
     const csvFileLocation: string | undefined = vscode.workspace.getConfiguration(CONFIG_KEY).get(CONFIG_CSV_FILELOCATION);
     if (!csvFileLocation) {
@@ -207,24 +223,6 @@ export default class CsvCommands {
     }
 
     // Get the absolute path for the file
-    const filePath = ProjectFileHelper.getAbsPath(csvFileLocation);
-
-    try {
-      // Open the file
-      const fileData = await vscode.workspace.openTextDocument(filePath);
-      if (!fileData) {
-        Logging.error(`The CSV file could not be retrieved. Used file location: "${filePath}".`);
-        return null;
-      }
-
-      // Return the file content
-      return fileData ? fileData.getText() : null;
-    } catch (e) {
-      if (!needsToExists) {
-        // Logging.error(`Sorry, something failed while retrieving the CSV file.`);
-        Logging.error(`The CSV file could not be retrieved. Used file location: "${csvFileLocation}".`);
-      }
-      return null;
-    }
+    return ProjectFileHelper.getAbsPath(csvFileLocation);
   }
 }

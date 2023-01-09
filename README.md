@@ -1,14 +1,14 @@
 # SharePoint Framework Localization Resources Extension
 
-This extension for Visual Studio Code makes it easier to work with locale resource files in SharePoint Framework projects. The extension has the ability to export all locale labels to a CSV file to make translations easier to process. Once the CSV file is complete, the data could be imported.
+This extension for Visual Studio Code makes it easier to work with locale resource files in SharePoint Framework projects. The extension has the ability to export all locale labels to a CSV/XLSX file to make translations easier to process. Once the CSV/XLSX file is complete, the data could be imported.
 
-Besides the CSV import and export functionality. The extension allows you to quickly add new locale labels, importing the resource dependency reference to your file and showing the locale label values while hovering over their name in code.
+Besides the CSV/XLSX import and export functionality. The extension allows you to quickly add new locale labels, importing the resource dependency reference to your file and showing the locale label values while hovering over their name in code.
 
 ## What can this extension do for you?
 
 ### Export to CSV file
 
-With the CSV export functionality, you can export a single or all known resources to a CSV file. The structure of this CSV file looks as follows:
+With the CSV/XLSX export functionality, you can export a single or all known resources to a CSV/XLSX file. The structure of this CSV/XLSX file looks as follows:
 
 ```csv
 key;Locale <locale>;<Resource key found in config.json>
@@ -17,15 +17,15 @@ DescriptionLabel;Description;x
 
 If you have multiple resource files and want to use the same key/labels, you can use the value `x` to specify for which resources the key is intended.
 
-![Export to CSV](./assets/localization-csv-export.gif)
+![Export to CSV/XLSX](./assets/localization-csv-export.gif)
 
-### Import from a CSV file
+### Import from a CSV/XLSX file
 
-Once you exported to a CSV file, that file becomes the master. Which means, if you are going to import from the CSV file, it will overwrite the already existing `{locale}.js` files in your project.
+Once you exported to a CSV/XLSX file, that file becomes the master. Which means, if you are going to import from the CSV/XLSX file, it will overwrite the already existing `{locale}.js` files in your project.
 
-> If you set the `spfxLocalization.autoCsvExport` setting to `true` (by default it is set to false). The extension will automatically export the labels to the CSV file when you create a new label with the `Create new resource key` action.
+> If you set the `spfxLocalization.autoCsvExport` setting to `true` (by default it is set to false). The extension will automatically export the labels to the CSV/XLSX file when you create a new label with the `Create new resource key` action.
 
-![Import from CSV](./assets/localization-csv-import.gif)
+![Import from CSV/XLSX](./assets/localization-csv-import.gif)
 
 ### Import the resource dependency reference
 
@@ -61,31 +61,31 @@ The extension has the following settings which you can configure to your own pre
 
 | Setting name | Description | Type | Default value |
 | --- | --- | --- | --- |
-| `spfxLocalization.csvFileLocation` | The location of the SPFx locale labels CSV file. | string | `./spfx-locale.csv` |
-| `spfxLocalization.csvDelimiter` | The delimiter to use in the CSV file. | string | `;` |
-| `spfxLocalization.autoCsvExport` | Specify if you want to automatically export to the CSV file when creating new labels. | boolean | `false` |
+| `spfxLocalization.csvFileLocation` | The location of the SPFx locale labels CSV/XLSX file. | string | `./spfx-locale.csv` |
+| `spfxLocalization.csvDelimiter` | The delimiter to use in the CSV/XLSX file. | string | `;` |
+| `spfxLocalization.autoCsvExport` | Specify if you want to automatically export to the CSV/XLSX file when creating new labels. | boolean | `false` |
 | `spfxLocalization.localeFileExtension` | Specify the extension type of the localization files. Default is JavaScript, but you can be changed to TypeScript. | enum | "js" \| "ts" |
-| `spfxLocalization.csvUseBom` | Use UTF8 BOM marker for CSV files. Can be useful on Windows to make UTF8 CSV files recognizable by Excel for example. | boolean | `false` |
-| `spfxLocalization.csvUseComment` | Enable comment column in CSV. You can use this column for notices, such as "translated" or "new". | boolean | `false` |
+| `spfxLocalization.csvUseBom` | Use UTF8 BOM marker for CSV/XLSX files. Can be useful on Windows to make UTF8 CSV/XLSX files recognizable by Excel for example. | boolean | `false` |
+| `spfxLocalization.csvUseComment` | Enable comment column in CSV/XLSX. You can use this column for notices, such as "translated" or "new". | boolean | `false` |
 | `spfxLocalization.csvUseTimestamp` | Auto-fill timestamp column with current timestamp when new strings are added. | boolean | `false` |
 
 
 ## How to use this extension
 
-### Export to CSV
+### Export to CSV/XLSX
 
 - Start by opening the command prompt:
   - Windows `⇧+ctrl+P`
   - Mac: `⇧+⌘+P`
-- Type: `SPFx export locale labels to CSV` and press `enter`
+- Type: `SPFx export locale labels to CSV/XLSX` and press `enter`
 - Select for which resource(s) you want to start the export
 
-### Import from CSV
+### Import from CSV/XLSX
 
 - Start by opening the command prompt:
   - Windows `⇧+ctrl+P`
   - Mac: `⇧+⌘+P`
-- Type: `SPFx import locale labels from CSV` and press `enter`
+- Type: `SPFx import locale labels from CSV/XLSX` and press `enter`
 - Select for which resource(s) you want to start the import
 
 ### Import resource module to the current file

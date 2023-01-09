@@ -6,7 +6,7 @@
   "icon": "assets/spfx-localization.png",
   "publisher": "eliostruyf",
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.40.0"
   },
   "categories": [
     "Other"
@@ -40,7 +40,7 @@
         "spfxLocalization.csvFileLocation": {
           "type": "string",
           "default": "./spfx-locale.csv",
-          "description": "The location of the SPFx locale labels CSV file."
+          "description": "The location of the SPFx locale labels CSV/XLSX file."
         },
         "spfxLocalization.csvDelimiter": {
           "type": "string",
@@ -65,7 +65,7 @@
         "spfxLocalization.autoCsvExport": {
           "type": "boolean",
           "default": false,
-          "description": "Specify if you want to automatically export to the CSV file when creating new labels."
+          "description": "Specify if you want to automatically export to the CSV/XLSX file when creating new labels."
         },
         "spfxLocalization.localeFileExtension": {
           "type": "string",
@@ -93,11 +93,11 @@
       },
       {
         "command": "extension.spfxCsvImport",
-        "title": "SPFx import locale labels from CSV"
+        "title": "SPFx import locale labels from CSV/XLSX"
       },
       {
         "command": "extension.spfxCsvExport",
-        "title": "SPFx export locale labels to CSV"
+        "title": "SPFx export locale labels to CSV/XLSX"
       }
     ],
     "menus": {
@@ -124,20 +124,28 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/csv-parse": "1.1.11",
-    "@types/csv-stringify": "1.4.2",
-    "@types/mocha": "2.2.42",
-    "@types/node": "10.12.21",
-    "tslint": "5.18.0",
-    "typescript": "3.3.1",
-    "vscode": "1.1.36"
+    "@types/csv-parse": "^1.2.2",
+    "@types/csv-stringify": "^3.1.0",
+    "@types/vscode": "1.40.0",
+    "@vscode/test-electron": "^1.6.2",
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^12.20.55",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.3"
   },
   "dependencies": {
-    "csv-parse": "4.4.6",
-    "csv-stringify": "3.1.1"
+    "csv-parse": "^5.3.3",
+    "csv-stringify": "^6.2.3",
+    "@nbelyh/exceljs": "^4.3.1"
   }
 }
