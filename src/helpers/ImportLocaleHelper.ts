@@ -30,6 +30,7 @@ export default class ImportLocaleHelper {
     let resourcePath = ProjectFileHelper.getResourcePath(resx);
 
     // Start creating the files
+    let filesCreated = false;
     for (const key in localeData) {
       const localLabels = localeData[key];
       if (key && localLabels && localLabels.length > 0) {
@@ -51,10 +52,14 @@ define([], () => {
 });`;
           // Start creating the file
           const fileLocation = path.join(vscode.workspace.rootPath || __dirname, resourcePath, `${key}.${fileExtension}`);
-          fs.writeFileSync(fileLocation, fileContents, { encoding: "utf8" });
-          Logging.info(`Localization labels have been imported.`);
+          await fs.promises.writeFile(fileLocation, fileContents, { encoding: "utf8" });
+          filesCreated = true;
         }
       }
+    }
+    
+    if (filesCreated) {
+      Logging.info(`Localization labels have been imported.`);
     }
   }
 
