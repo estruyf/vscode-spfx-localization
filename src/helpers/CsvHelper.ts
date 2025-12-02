@@ -7,7 +7,7 @@ import Logging from "../commands/Logging";
 import ImportLocaleHelper from "./ImportLocaleHelper";
 import { LocaleKeyValue } from "../models/LocaleKeyValue";
 import ProjectFileHelper from "./ProjectFileHelper";
-import { OPTION_IMPORT_ALL } from "./ExtensionSettings";
+import { OPTION_IMPORT_ALL, CONFIG_ALLOW_OVERWRITE, CONFIG_KEY } from "./ExtensionSettings";
 import { COMMENT_HEADER, KEY_HEADER, LOCALE_HEADER, TIMESTAMP_HEADER } from "../constants/CsvHeaders";
 import { ICsvData } from "./CsvData";
 import { CsvDataArray } from "./CsvDataArray";
@@ -159,6 +159,7 @@ export default class CsvHelper {
    */
   private static updateDataRow(csvData: ICsvData, rowIndex: number, csvHeaders: LocaleCsvInfo, keyValue: LocaleKeyValue, localeName: string, resourceName: string, timestamp: string) {
     let rowModified = false;
+    const allowOverwrite = vscode.workspace.getConfiguration(CONFIG_KEY).get<boolean>(CONFIG_ALLOW_OVERWRITE, false);
 
     for (const locale of csvHeaders.localeIdx) {
       if (locale.key === localeName) {
@@ -168,7 +169,12 @@ export default class CsvHelper {
           rowModified = true;
         } else {
           if (existingValue !== keyValue.value) {
-            Logging.warning(`Ignoring overwritten ${keyValue.key} in ${localeName} '${keyValue.value}'. Keeping '${existingValue}'.`);
+            if (allowOverwrite) {
+              csvData.setValue(rowIndex, locale.idx, keyValue.value);
+              rowModified = true;
+            } else {
+              Logging.warning(`Ignoring overwritten ${keyValue.key} in ${localeName} '${keyValue.value}'. Keeping '${existingValue}'.`);
+            }
           }
         }
         // rowModified = true;

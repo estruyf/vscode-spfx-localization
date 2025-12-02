@@ -11,3 +11,4 @@ export const CONFIG_CSV_USE_BOM = "csvUseBom";
 export const UTF8_BOM = '\ufeff';
 export const CONFIG_CSV_USE_COMMENT = "csvUseComment";
 export const CONFIG_CSV_USE_TIMESTAMP = "csvUseTimestamp";
+export const CONFIG_ALLOW_OVERWRITE = "allowOverwrite";
