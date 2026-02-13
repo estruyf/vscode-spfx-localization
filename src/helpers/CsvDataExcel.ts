@@ -47,6 +47,25 @@ export class CsvDataExcel implements ICsvData {
 
   addRow(r: number) {
     this.ws.insertRow(r + 1, Array(this.colCount).join('.').split('.'));
+    
+    // Expand table if it exists
+    const tables = this.ws.getTables();
+    if (tables?.length > 0) {
+      for (const it of tables) {
+        const table = (it as any)?.table;
+        if (table?.tableRef) {
+          const match = table.tableRef.match(/([A-Z]+)(\d+):([A-Z]+)(\d+)/);
+          if (match) {
+            const [, startCol, startRow, endCol, endRow] = match;
+            const endRowNum = parseInt(endRow);
+            // Check if inserted row is within or after table range
+            if (r + 1 <= endRowNum + 1) {
+              table.tableRef = `${startCol}${startRow}:${endCol}${endRowNum + 1}`;
+            }
+          }
+        }
+      }
+    }
   }
 
   get rowCount(): number {

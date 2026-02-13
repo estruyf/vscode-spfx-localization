@@ -68,6 +68,7 @@ The extension has the following settings which you can configure to your own pre
 | `spfxLocalization.csvUseBom` | Use UTF8 BOM marker for CSV/XLSX files. Can be useful on Windows to make UTF8 CSV/XLSX files recognizable by Excel for example. | boolean | `false` |
 | `spfxLocalization.csvUseComment` | Enable comment column in CSV/XLSX. You can use this column for notices, such as "translated" or "new". | boolean | `false` |
 | `spfxLocalization.csvUseTimestamp` | Auto-fill timestamp column with current timestamp when new strings are added. | boolean | `false` |
+| `spfxLocalization.allowOverwrite` | Allow project file values to overwrite existing CSV/XLSX values during export. When disabled, CSV values are preserved and a warning is shown. | boolean | `false` |
 
 
 ## How to use this extension

@@ -67,6 +67,11 @@
           "default": false,
           "description": "Specify if you want to automatically export to the CSV/XLSX file when creating new labels."
         },
+        "spfxLocalization.allowOverwrite": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow project file values to overwrite existing CSV/XLSX values during export. When disabled, CSV values are preserved and a warning is shown."
+        },
         "spfxLocalization.localeFileExtension": {
           "type": "string",
           "default": "js",
