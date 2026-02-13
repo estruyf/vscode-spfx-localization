@@ -1,10 +1,14 @@
 # Change Log
 
-# [1.9.0] - 2022-01-09
+## [1.10.0] - 2026-09-13
+
+- [#33](https://github.com/estruyf/vscode-spfx-localization/issues/33): Add a setting to allow pushing strings from translated `.js` files back to CSV/XLS files. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
+
+## [1.9.0] - 2022-01-09
 
 - [#26](https://github.com/estruyf/vscode-spfx-localization/issues/26): Excel format support. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
 
-# [1.8.0] - 2022-12-22
+## [1.8.0] - 2022-12-22
 
 - [#24](https://github.com/estruyf/vscode-spfx-localization/issues/24): Fix for unwanted spaces in localization keys. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
 
