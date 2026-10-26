@@ -61,6 +61,11 @@ export class CsvDataExcel implements ICsvData {
             // Check if inserted row is within or after table range
             if (r + 1 <= endRowNum + 1) {
               table.tableRef = `${startCol}${startRow}:${endCol}${endRowNum + 1}`;
+              // Expand its filter range too, so it keeps covering the new row
+              const filter = table.autoFilterRef?.match(/([A-Z]+)(\d+):([A-Z]+)(\d+)/);
+              if (filter) {
+                table.autoFilterRef = `${filter[1]}${filter[2]}:${filter[3]}${parseInt(filter[4]) + 1}`;
+              }
             }
           }
         }
