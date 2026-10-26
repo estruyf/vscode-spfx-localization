@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.10.1] - 2026-10-26
+
+- [#34](https://github.com/estruyf/vscode-spfx-localization/pull/34): Updated `@nbelyh/exceljs` to `4.4.0`, which brings in the upstream exceljs 4.4.0 bug fixes and fixes for tables, `spliceRows` and the streaming reader. Adding a row to an XLSX label file now also grows the table's filter range, which used to stop one row short of the table. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
+
 ## [1.10.0] - 2026-09-13
 
 - [#33](https://github.com/estruyf/vscode-spfx-localization/issues/33): Add a setting to allow pushing strings from translated `.js` files back to CSV/XLS files. Thanks to [Nikolay Belykh](https://github.com/nbelyh).
